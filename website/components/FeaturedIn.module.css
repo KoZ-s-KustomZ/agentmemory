@@ -4,6 +4,15 @@
   border-top: 1px solid var(--charcoal);
   border-bottom: 1px solid var(--charcoal);
 }
+.wrapCompact {
+  padding: 36px 0 0;
+  background: transparent;
+  border: 0;
+  margin-top: 40px;
+}
+.wrapCompact .eyebrow {
+  margin-bottom: 4px;
+}
 .inner {
   max-width: 1100px;
   margin: 0 auto;

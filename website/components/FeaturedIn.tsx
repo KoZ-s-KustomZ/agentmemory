@@ -39,9 +39,20 @@ const ITEMS: Feature[] = [
   },
 ];
 
-export function FeaturedIn() {
+interface FeaturedInProps {
+  // When true, render the bar without the outer `<section>` chrome
+  // (no border, no own padding) so it can be inlined inside the
+  // hero below the CTA stack.
+  compact?: boolean;
+}
+
+export function FeaturedIn({ compact = false }: FeaturedInProps = {}) {
+  const wrapClass = compact ? `${styles.wrap} ${styles.wrapCompact}` : styles.wrap;
   return (
-    <section className={styles.wrap} aria-labelledby="featured-in-title">
+    <section
+      className={wrapClass}
+      aria-labelledby="featured-in-title"
+    >
       <div className={styles.inner}>
         <div id="featured-in-title" className={styles.eyebrow}>
           AS FEATURED IN
