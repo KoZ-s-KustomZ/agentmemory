@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cursed Crystals</title>
+<style>
+:root {
+  --bg: #07080f;
+  --surface: #11131e;
+  --border: #22253a;
+  --purple: #a855f7;
+  --blue: #38bdf8;
+  --gem: #06efef;
+  --red: #f43f5e;
+  --green: #22c55e;
+  --yellow: #fbbf24;
+  --text: #dde1f0;
+  --muted: #6b7280;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  touch-action: manipulation;
+}
+
+/* ── Screens ── */
+.screen {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px 24px;
+}
+.screen.active { display: flex; }
+#screen-game { padding: 0; justify-content: flex-start; }
+
+/* ── Typography ── */
+.big-title {
+  font-size: clamp(2rem, 9vw, 2.8rem);
+  font-weight: 900; text-transform: uppercase;
+  letter-spacing: 3px; text-align: center;
+  line-height: 1.05; color: #fff;
+  text-shadow: 0 0 30px var(--purple), 0 0 60px var(--purple);
+  margin-bottom: 6px;
+}
+.subtitle { color: var(--muted); font-size: 0.82rem; text-align: center; margin-bottom: 36px; }
+
+/* ── Buttons ── */
+.btn {
+  width: 100%; max-width: 280px; padding: 15px;
+  border-radius: 12px; font-size: 0.95rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  cursor: pointer; border: 2px solid; transition: opacity 0.12s;
+  margin-bottom: 10px; display: block; font-family: inherit;
+}
+.btn:active:not(:disabled) { opacity: 0.75; }
+.btn:disabled { opacity: 0.25; cursor: not-allowed; }
+.btn-purple { background: rgba(168,85,247,.18); border-color: var(--purple); color: var(--purple); }
+.btn-blue   { background: rgba(56,189,248,.18);  border-color: var(--blue);   color: var(--blue); }
+.btn-red    { background: rgba(244,63,94,.18);   border-color: var(--red);    color: var(--red); }
+.btn-gem    { background: rgba(6,239,239,.12);   border-color: var(--gem);    color: var(--gem); }
+.btn-green  { background: rgba(34,197,94,.18);   border-color: var(--green);  color: var(--green); }
+.btn-ghost  { background: none; border-color: var(--border); color: var(--muted); }
+
+/* ── Code display ── */
+.code-box {
+  background: var(--surface); border: 2px solid var(--purple);
+  border-radius: 16px; padding: 22px 32px; text-align: center;
+  margin-bottom: 20px; width: 100%; max-width: 280px;
+}
+.code-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+.code-value { font-size: 3.2rem; font-weight: 900; letter-spacing: 10px; color: var(--purple); font-family: 'Courier New', monospace; }
+
+/* ── Input ── */
+.code-input {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 12px; padding: 15px; font-size: 2.4rem;
+  font-weight: 900; letter-spacing: 10px; color: var(--text);
+  text-align: center; width: 100%; max-width: 280px;
+  font-family: 'Courier New', monospace; margin-bottom: 10px;
+  outline: none;
+}
+.code-input:focus { border-color: var(--blue); }
+
+.hint { color: var(--muted); font-size: 0.82rem; text-align: center; margin-bottom: 14px; min-height: 20px; }
+
+/* ── Back button ── */
+.back {
+  position: absolute; top: 14px; left: 14px;
+  background: none; border: none; color: var(--muted);
+  font-size: 1.3rem; cursor: pointer; padding: 8px; z-index: 5;
+}
+
+/* ── Spinner ── */
+.spinner {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid var(--border); border-top-color: var(--purple);
+  animation: spin 0.75s linear infinite; margin: 4px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════ GAME SCREEN ═══════════════ */
+
+/* Header */
+.game-hdr {
+  width: 100%; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 12px; display: flex;
+  align-items: center; gap: 10px; flex-shrink: 0;
+}
+.turn-pill {
+  font-size: 0.68rem; font-weight: 700; padding: 4px 10px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap; border: 1px solid;
+}
+.pill-mine   { background: rgba(34,197,94,.15);  color: var(--green);  border-color: var(--green); }
+.pill-theirs { background: rgba(107,114,128,.1); color: var(--muted);  border-color: var(--border); }
+
+.sleep-wrap { flex: 1; min-width: 0; }
+.sleep-meta {
+  display: flex; justify-content: space-between;
+  font-size: 0.62rem; color: var(--muted); margin-bottom: 3px;
+}
+.sleep-track { background: #0d0f1a; height: 7px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.sleep-fill  { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--red)); transition: width .3s; }
+
+.gems-ct { font-size: 0.8rem; font-weight: 700; color: var(--gem); white-space: nowrap; }
+
+/* Status badges */
+.status-row { display: flex; gap: 4px; flex-wrap: wrap; padding: 4px 12px; background: var(--bg); flex-shrink: 0; min-height: 26px; }
+.sbadge { font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 8px; border: 1px solid; }
+.sbadge-smoke  { color: var(--green); border-color: var(--green); background: rgba(34,197,94,.12); }
+.sbadge-crash  { color: var(--red);   border-color: var(--red);   background: rgba(244,63,94,.12); }
+
+/* Grid */
+.grid-wrap {
+  flex: 1; width: 100%; display: flex;
+  align-items: center; justify-content: center;
+  padding: 6px; min-height: 0;
+}
+#grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: clamp(2px, 0.7vw, 4px);
+  width: 100%;
+  max-width: min(calc(100vw - 12px), calc(100vh - 230px));
+  aspect-ratio: 1;
+}
+.cell {
+  aspect-ratio: 1; background: #0e1018;
+  border: 1px solid #1a1d2e; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(0.85rem, 3.8vw, 1.3rem);
+  cursor: default; transition: background .12s, box-shadow .12s;
+  user-select: none;
+}
+.cell.movable {
+  background: #151825; border-color: rgba(255,255,255,.22);
+  box-shadow: inset 0 0 5px rgba(255,255,255,.07);
+  cursor: pointer;
+}
+.cell.movable:active { background: #1e2438; }
+.cell.crystal-cell {
+  background: #1e0d33; border: 2px solid var(--purple);
+  border-radius: 8px;
+}
+
+/* Log line */
+.log-line {
+  width: 100%; padding: 5px 12px; background: #060709;
+  border-top: 1px solid var(--border); font-size: 0.68rem;
+  color: var(--muted); flex-shrink: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: 'Courier New', monospace;
+}
+
+/* Action bar */
+.action-bar {
+  width: 100%; padding: 8px 10px; display: flex;
+  gap: 7px; background: var(--surface);
+  border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.action-bar .btn {
+  margin: 0; flex: 1; padding: 11px 4px;
+  font-size: 0.65rem; max-width: none; letter-spacing: 0;
+  line-height: 1.3; text-align: center;
+}
+
+/* Waiting overlay */
+.w-overlay {
+  position: absolute; inset: 0; background: rgba(7,8,15,.82);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 20; gap: 12px;
+}
+.w-overlay.show { display: flex; }
+.w-label { color: var(--muted); font-size: 0.88rem; }
+
+/* ── End screen ── */
+.end-emoji { font-size: 5rem; margin-bottom: 12px; }
+.end-title {
+  font-size: 2rem; font-weight: 900; text-transform: uppercase;
+  letter-spacing: 2px; margin-bottom: 8px;
+}
+.end-win  { color: var(--green); text-shadow: 0 0 20px var(--green); }
+.end-lose { color: var(--red);   text-shadow: 0 0 20px var(--red); }
+.end-body { color: var(--muted); font-size: 0.88rem; text-align: center; max-width: 250px; line-height: 1.5; margin-bottom: 28px; }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="screen-home" class="screen active">
+  <div class="big-title">💎<br>Cursed<br>Crystals</div>
+  <div class="subtitle">Co-op survival · 2 players · separate phones</div>
+  <button class="btn btn-purple" onclick="startHost()">Host Game</button>
+  <button class="btn btn-blue"   onclick="showJoin()">Join Game</button>
+</div>
+
+<!-- ══ HOSTING ══ -->
+<div id="screen-host" class="screen">
+  <button class="back" onclick="goHome()">✕</button>
+  <div class="code-box">
+    <div class="code-label">Room Code</div>
+    <div id="host-code" class="code-value">····</div>
+  </div>
+  <div id="host-hint" class="hint">Connecting to network…</div>
+  <div class="spinner"></div>
+</div>
+
+<!-- ══ JOINING ══ -->
+<div id="screen-join" class="screen">
+  <button class="back" onclick="goHome()">✕</button>
+  <div class="big-title" style="font-size:1.6rem;margin-bottom:20px">Join Game</div>
+  <input id="join-input" class="code-input" type="text" maxlength="4"
+    placeholder="····" inputmode="numeric"
+    oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
+  <div id="join-hint" class="hint">Enter your friend's room code</div>
+  <button class="btn btn-blue" onclick="joinGame()">Connect</button>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="screen-game" class="screen">
+  <div class="game-hdr">
+    <div id="turn-pill" class="turn-pill pill-mine">Your Turn</div>
+    <div class="sleep-wrap">
+      <div class="sleep-meta">
+        <span>😴 Sleepiness</span>
+        <span id="sleep-val">50</span>/100
+      </div>
+      <div class="sleep-track">
+        <div id="sleep-fill" class="sleep-fill" style="width:50%"></div>
+      </div>
+    </div>
+    <div id="gems-ct" class="gems-ct">💎 0/5</div>
+  </div>
+
+  <div id="status-row" class="status-row"></div>
+
+  <div class="grid-wrap">
+    <div id="grid"></div>
+  </div>
+
+  <div id="log-line" class="log-line">&gt; Game on.</div>
+
+  <div class="action-bar">
+    <button id="btn-eat"   class="btn btn-red"  onclick="sendConsume('eat')"   disabled>🍽 EAT SHARD<br>-30 sleep · gem gone</button>
+    <button id="btn-smoke" class="btn btn-gem"  onclick="sendConsume('smoke')" disabled>💨 SMOKE SHARD<br>5T freeze · hard crash</button>
+  </div>
+
+  <div id="w-overlay" class="w-overlay show">
+    <div class="spinner"></div>
+    <div id="w-label" class="w-label">Connecting…</div>
+  </div>
+</div>
+
+<!-- ══ END ══ -->
+<div id="screen-end" class="screen">
+  <div id="end-emoji" class="end-emoji">👻</div>
+  <div id="end-title" class="end-title end-lose">Game Over</div>
+  <div id="end-body"  class="end-body">Crystal passed out…</div>
+  <button class="btn btn-purple" onclick="goHome()">Play Again</button>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  CURSED CRYSTALS — P2P Multiplayer
+//  Host = Player 1 (authoritative state)
+//  Joiner = Player 2 (sends actions, receives state)
+// ═══════════════════════════════════════════════
+
+const GRID_SIZE   = 7;
+const WIN_GEMS    = 5;
+const SLEEP_LIMIT = 100;
+const PEER_CFG    = {
+  host: '0.peerjs.com', port: 443, secure: true, path: '/',
+  config: { iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ]}
+};
+
+let peer = null, conn = null, amHost = false;
+let gs = null;          // game state (host is authoritative)
+let pendingAction = false; // joiner: waiting for host to ack
+
+// ─── Screen helpers ────────────────────────────────────────────────
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function goHome() {
+  try { if (conn) conn.close(); } catch(e){}
+  try { if (peer) peer.destroy(); } catch(e){}
+  conn = null; peer = null; gs = null; amHost = false; pendingAction = false;
+  show('home');
+}
+
+function showJoin() {
+  document.getElementById('join-input').value = '';
+  document.getElementById('join-hint').textContent = 'Enter your friend\'s room code';
+  show('join');
+}
+
+// ─── Host ──────────────────────────────────────────────────────────
+
+function startHost() {
+  show('host');
+  const code = String(1000 + Math.floor(Math.random() * 9000));
+  document.getElementById('host-code').textContent = code;
+  document.getElementById('host-hint').textContent = 'Connecting to network…';
+  amHost = true;
+
+  peer = new Peer(code, PEER_CFG);
+
+  peer.on('open', () => {
+    document.getElementById('host-hint').textContent = 'Share this code with your friend';
+  });
+
+  peer.on('connection', (c) => {
+    conn = c;
+    document.getElementById('host-hint').textContent = 'Friend found! Starting…';
+    wireConn();
+  });
+
+  peer.on('error', (err) => {
+    document.getElementById('host-hint').textContent = 'Network error: ' + err.type + '. Go back and try again.';
+  });
+}
+
+// ─── Joiner ────────────────────────────────────────────────────────
+
+function joinGame() {
+  const code = document.getElementById('join-input').value.trim();
+  if (code.length !== 4) {
+    document.getElementById('join-hint').textContent = 'Enter the full 4-digit code';
+    return;
+  }
+  document.getElementById('join-hint').textContent = 'Connecting…';
+  amHost = false;
+
+  peer = new Peer(undefined, PEER_CFG);
+
+  peer.on('open', () => {
+    conn = peer.connect(code, { reliable: true });
+    wireConn();
+  });
+
+  peer.on('error', () => {
+    document.getElementById('join-hint').textContent = 'Could not connect. Check the code.';
+  });
+}
+
+// ─── Shared connection wiring ───────────────────────────────────────
+
+function wireConn() {
+  conn.on('open', () => {
+    if (amHost) {
+      // Host starts the game
+      gs = makeState();
+      send({ type: 'state', gs });
+      show('game');
+      renderGame();
+    }
+    // Joiner waits for first 'state' message
+  });
+
+  conn.on('data', (msg) => {
+    if (msg.type === 'state') {
+      gs = msg.gs;
+      pendingAction = false;
+      show('game');
+      renderGame();
+
+    } else if (amHost && msg.type === 'move') {
+      hostApplyMove(msg.r, msg.c);
+
+    } else if (amHost && msg.type === 'consume') {
+      hostApplyConsume(msg.method);
+    }
+  });
+
+  conn.on('close', () => {
+    if (gs && gs.phase === 'playing') {
+      alert('Your friend disconnected.');
+      goHome();
+    }
+  });
+
+  conn.on('error', () => {
+    alert('Connection error. Please restart.');
+    goHome();
+  });
+}
+
+function send(msg) {
+  if (conn && conn.open) conn.send(msg);
+}
+
+// ─── State factory ──────────────────────────────────────────────────
+
+function makeState() {
+  const board = [];
+  for (let r = 0; r < GRID_SIZE; r++) {
+    board.push([]);
+    for (let c = 0; c < GRID_SIZE; c++) {
+      if (r === 3 && c === 3) { board[r].push(''); continue; }
+      const p = Math.random();
+      if      (p < 0.20) board[r].push('plant');
+      else if (p < 0.35) board[r].push('dog');
+      else if (p < 0.50) board[r].push('gem');
+      else                board[r].push('');
+    }
+  }
+  return {
+    board,
+    pos:    { r: 3, c: 3 },
+    sleep:  50,
+    gems:   0,
+    smokeT: 0,
+    crashT: 0,
+    turn:   1,            // 1 = host, 2 = joiner
+    phase:  'playing',
+    log:    'Crystal woke up cursed 💎 Collect 5 gems to break the curse!',
+  };
+}
+
+// ─── Host game logic ────────────────────────────────────────────────
+
+function hostApplyMove(r, c) {
+  if (gs.phase !== 'playing') return;
+  const item = gs.board[r][c];
+  gs.pos = { r, c };
+  gs.board[r][c] = '';
+
+  if      (item === 'gem')   { gs.gems++; gs.log = '💎 Snatched a gem! Backpack: ' + gs.gems + '/' + WIN_GEMS; }
+  else if (item === 'dog')   { gs.log = '🐕 A tiny dog went absolutely feral.'; }
+  else if (item === 'plant') { gs.log = '🪴 Brushed past a potted plant.'; }
+  else                       { gs.log = 'Moved.'; }
+
+  roamDogs();
+  tickTurn();
+  checkEnd();
+  broadcastState();
+}
+
+function hostApplyConsume(method) {
+  if (gs.phase !== 'playing' || gs.gems <= 0) return;
+  gs.gems--;
+  if (method === 'eat') {
+    gs.sleep = Math.max(0, gs.sleep - 30);
+    gs.log = '🍽 Ate a gem raw — instant -30 sleepiness. Shard gone.';
+  } else {
+    gs.smokeT = 5;
+    gs.crashT = 0;
+    gs.log = '💨 Smoking a shard — sleepiness frozen 5 turns. Brace for the crash.';
+  }
+  checkEnd();
+  broadcastState();
+}
+
+function tickTurn() {
+  let inc = 8;
+  if (gs.smokeT > 0) {
+    inc = 0;
+    gs.smokeT--;
+    if (gs.smokeT === 0) {
+      gs.sleep = Math.min(SLEEP_LIMIT, gs.sleep + 45);
+      gs.crashT = 3;
+      gs.log = '💥 Smoke wore off — +45 sleepiness crash! Withdrawal for 3 turns.';
+    }
+  } else if (gs.crashT > 0) {
+    inc = inc * 2;
+    gs.crashT--;
+  }
+  gs.sleep = Math.min(SLEEP_LIMIT, gs.sleep + inc);
+  gs.turn = gs.turn === 1 ? 2 : 1;
+}
+
+function roamDogs() {
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      if (gs.board[r][c] === 'dog' && Math.random() > 0.58) {
+        const nr = Math.min(GRID_SIZE - 1, Math.max(0, r + (Math.random() > 0.5 ? 1 : -1)));
+        const nc = Math.min(GRID_SIZE - 1, Math.max(0, c + (Math.random() > 0.5 ? 1 : -1)));
+        if (!gs.board[nr][nc] && !(nr === gs.pos.r && nc === gs.pos.c)) {
+          gs.board[r][c] = '';
+          gs.board[nr][nc] = 'dog';
+        }
+      }
+    }
+  }
+}
+
+function checkEnd() {
+  if (gs.gems >= WIN_GEMS)       gs.phase = 'won';
+  else if (gs.sleep >= SLEEP_LIMIT) gs.phase = 'lost';
+}
+
+function broadcastState() {
+  send({ type: 'state', gs });
+  renderGame();
+}
+
+// ─── Joiner actions ─────────────────────────────────────────────────
+
+function sendMove(r, c) {
+  if (pendingAction) return;
+  pendingAction = true;
+  send({ type: 'move', r, c });
+  // Show waiting immediately
+  document.getElementById('w-overlay').classList.add('show');
+  document.getElementById('w-label').textContent = 'Waiting for host…';
+}
+
+function sendConsume(method) {
+  if (!isMyTurn() || pendingAction || !gs || gs.gems <= 0) return;
+  if (amHost) {
+    hostApplyConsume(method);
+    return;
+  }
+  pendingAction = true;
+  send({ type: 'consume', method });
+  document.getElementById('w-overlay').classList.add('show');
+  document.getElementById('w-label').textContent = 'Waiting for host…';
+}
+
+// ─── Rendering ──────────────────────────────────────────────────────
+
+const ICONS = { plant: '🪴', dog: '🐕', gem: '💎' };
+
+function isMyTurn() {
+  return gs && ((amHost && gs.turn === 1) || (!amHost && gs.turn === 2));
+}
+
+function renderGame() {
+  if (!gs) return;
+
+  // Header
+  const pill = document.getElementById('turn-pill');
+  if (gs.phase === 'playing') {
+    if (isMyTurn()) {
+      pill.textContent = '⚡ Your Turn';
+      pill.className = 'turn-pill pill-mine';
+    } else {
+      pill.textContent = "Friend's Turn";
+      pill.className = 'turn-pill pill-theirs';
+    }
+  }
+
+  document.getElementById('sleep-val').textContent = gs.sleep;
+  document.getElementById('sleep-fill').style.width = gs.sleep + '%';
+  document.getElementById('gems-ct').textContent = '💎 ' + gs.gems + '/' + WIN_GEMS;
+  document.getElementById('log-line').textContent = '> ' + gs.log;
+
+  // Status badges
+  const sr = document.getElementById('status-row');
+  sr.innerHTML = '';
+  if (gs.smokeT > 0) sr.innerHTML += `<span class="sbadge sbadge-smoke">💨 High Energy (${gs.smokeT}T)</span>`;
+  if (gs.crashT > 0) sr.innerHTML += `<span class="sbadge sbadge-crash">⚠ Withdrawal (${gs.crashT}T)</span>`;
+
+  // Waiting overlay
+  const wo = document.getElementById('w-overlay');
+  if (!isMyTurn() && gs.phase === 'playing' && !pendingAction) {
+    wo.classList.add('show');
+    document.getElementById('w-label').textContent = "Friend's turn…";
+  } else if (isMyTurn() && gs.phase === 'playing') {
+    wo.classList.remove('show');
+  }
+
+  // Action buttons
+  const canAct = isMyTurn() && gs.phase === 'playing' && gs.gems > 0 && !pendingAction;
+  document.getElementById('btn-eat').disabled   = !canAct;
+  document.getElementById('btn-smoke').disabled = !canAct;
+
+  // Grid
+  const gridEl = document.getElementById('grid');
+  gridEl.innerHTML = '';
+
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+
+      const isCrystal = r === gs.pos.r && c === gs.pos.c;
+      const canMove   = !isCrystal && isMyTurn() && gs.phase === 'playing' && !pendingAction
+        && Math.abs(r - gs.pos.r) <= 1 && Math.abs(c - gs.pos.c) <= 1;
+
+      if (isCrystal) {
+        cell.classList.add('crystal-cell');
+        cell.textContent = '👩🏻';
+      } else {
+        cell.textContent = ICONS[gs.board[r][c]] || '';
+      }
+
+      if (canMove) {
+        cell.classList.add('movable');
+        const _r = r, _c = c;
+        cell.addEventListener('click', () => {
+          if (amHost) hostApplyMove(_r, _c);
+          else        sendMove(_r, _c);
+        });
+      }
+
+      gridEl.appendChild(cell);
+    }
+  }
+
+  // End screen
+  if (gs.phase !== 'playing') {
+    setTimeout(() => {
+      const win = gs.phase === 'won';
+      document.getElementById('end-emoji').textContent  = win ? '💎' : '👻';
+      document.getElementById('end-title').textContent  = win ? 'CURSE BROKEN!' : 'GAME OVER';
+      document.getElementById('end-title').className    = 'end-title ' + (win ? 'end-win' : 'end-lose');
+      document.getElementById('end-body').textContent   = win
+        ? 'You both collected 5 gems and shattered Crystal\'s curse! 🎉'
+        : 'Crystal hit 100 sleepiness and turned into a ghost… 👻';
+      show('end');
+    }, 500);
+  }
+}
+</script>
+</body>
+</html>
