@@ -303,7 +303,7 @@ const PEER_CFG    = {
   ]}
 };
 
-let peer = null, conn = null, amHost = false;
+let peer = null, conn = null, amHost = false, soloMode = false;
 let gs = null;          // game state (host is authoritative)
 let pendingAction = false; // joiner: waiting for host to ack
 
@@ -317,15 +317,15 @@ function show(id) {
 function goHome() {
   try { if (conn) conn.close(); } catch(e){}
   try { if (peer) peer.destroy(); } catch(e){}
-  conn = null; peer = null; gs = null; amHost = false; pendingAction = false;
+  conn = null; peer = null; gs = null; amHost = false; soloMode = false; pendingAction = false;
   show('home');
 }
 
 function startSolo() {
   amHost = true;
+  soloMode = true;
   gs = makeState();
   gs.turn = 1;
-  // fake conn so send() is a no-op
   conn = { open: false };
   show('game');
   renderGame();
@@ -566,6 +566,7 @@ function sendConsume(method) {
 const ICONS = { plant: '🪴', dog: '🐕', gem: '💎' };
 
 function isMyTurn() {
+  if (soloMode) return true;
   return gs && ((amHost && gs.turn === 1) || (!amHost && gs.turn === 2));
 }
 
