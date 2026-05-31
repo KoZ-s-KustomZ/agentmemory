@@ -216,6 +216,7 @@ html, body {
   <div class="subtitle">Co-op survival · 2 players · separate phones</div>
   <button class="btn btn-purple" onclick="startHost()">Host Game</button>
   <button class="btn btn-blue"   onclick="showJoin()">Join Game</button>
+  <button class="btn btn-ghost"  onclick="startSolo()" style="margin-top:6px;font-size:0.8rem">Solo Test Mode</button>
 </div>
 
 <!-- ══ HOSTING ══ -->
@@ -295,10 +296,10 @@ const GRID_SIZE   = 7;
 const WIN_GEMS    = 5;
 const SLEEP_LIMIT = 100;
 const PEER_CFG    = {
-  host: '0.peerjs.com', port: 443, secure: true, path: '/',
   config: { iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun.relay.metered.ca:80' },
   ]}
 };
 
@@ -318,6 +319,16 @@ function goHome() {
   try { if (peer) peer.destroy(); } catch(e){}
   conn = null; peer = null; gs = null; amHost = false; pendingAction = false;
   show('home');
+}
+
+function startSolo() {
+  amHost = true;
+  gs = makeState();
+  gs.turn = 1;
+  // fake conn so send() is a no-op
+  conn = { open: false };
+  show('game');
+  renderGame();
 }
 
 function showJoin() {
@@ -479,6 +490,7 @@ function hostApplyConsume(method) {
     gs.crashT = 0;
     gs.log = '💨 Smoking a shard — sleepiness frozen 5 turns. Brace for the crash.';
   }
+  tickTurn();
   checkEnd();
   broadcastState();
 }
