@@ -6,235 +6,220 @@
 <title>Cursed Crystals</title>
 <style>
 :root {
-  --bg: #07080f; --surface: #11131e; --border: #22253a;
-  --purple: #a855f7; --blue: #38bdf8; --gem: #06efef;
-  --red: #f43f5e; --green: #22c55e; --yellow: #fbbf24;
-  --orange: #f97316; --text: #dde1f0; --muted: #6b7280;
+  --bg:#07080f;--surface:#11131e;--border:#22253a;
+  --purple:#a855f7;--blue:#38bdf8;--gem:#06efef;
+  --red:#f43f5e;--green:#22c55e;--yellow:#fbbf24;
+  --orange:#f97316;--text:#dde1f0;--muted:#6b7280;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body {
-  width: 100%; height: 100%; overflow: hidden;
-  background: var(--bg); color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  touch-action: manipulation;
-}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;touch-action:manipulation;}
 
 /* ── Screens ── */
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 28px 24px; }
-.screen.active { display: flex; }
-#screen-game { padding: 0; justify-content: flex-start; }
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;}
+.screen.active{display:flex;}
+#screen-game{padding:0;justify-content:flex-start;}
+
+/* ── Home animated bg ── */
+@keyframes home-bg{
+  0%  {background:radial-gradient(ellipse at 20% 20%,rgba(168,85,247,.2) 0%,transparent 55%);}
+  33% {background:radial-gradient(ellipse at 80% 30%,rgba(6,239,239,.12) 0%,transparent 55%);}
+  66% {background:radial-gradient(ellipse at 50% 85%,rgba(168,85,247,.18) 0%,transparent 55%);}
+  100%{background:radial-gradient(ellipse at 20% 20%,rgba(168,85,247,.2) 0%,transparent 55%);}
+}
+#screen-home{animation:home-bg 8s ease-in-out infinite;}
 
 /* ── Screen shake ── */
-@keyframes screen-shake {
-  0%   { transform: translate(0,0) rotate(0deg); }
-  15%  { transform: translate(-6px,3px) rotate(-0.5deg); }
-  30%  { transform: translate(6px,-3px) rotate(0.5deg); }
-  50%  { transform: translate(-4px,5px) rotate(-0.3deg); }
-  70%  { transform: translate(4px,-2px) rotate(0.3deg); }
-  85%  { transform: translate(-2px,3px) rotate(-0.1deg); }
-  100% { transform: translate(0,0) rotate(0deg); }
+@keyframes screen-shake{
+  0%  {transform:translate(0,0) rotate(0deg);}
+  15% {transform:translate(-6px,3px) rotate(-.5deg);}
+  30% {transform:translate(6px,-3px) rotate(.5deg);}
+  50% {transform:translate(-4px,5px) rotate(-.3deg);}
+  70% {transform:translate(4px,-2px) rotate(.3deg);}
+  85% {transform:translate(-2px,3px) rotate(-.1deg);}
+  100%{transform:translate(0,0) rotate(0deg);}
 }
-#screen-game.shaking { animation: screen-shake 0.5s ease-out; }
+#screen-game.shaking{animation:screen-shake .5s ease-out;}
 
-/* ── Psychosis effects ── */
-@keyframes psycho {
-  0%   { filter: hue-rotate(0deg) saturate(1.2) brightness(1); }
-  20%  { filter: hue-rotate(80deg) saturate(2.8) brightness(1.08); }
-  40%  { filter: hue-rotate(170deg) saturate(3.5) brightness(0.9) blur(0.5px); }
-  60%  { filter: hue-rotate(260deg) saturate(3) brightness(1.12); }
-  80%  { filter: hue-rotate(330deg) saturate(2.5) brightness(0.87) blur(1px); }
-  100% { filter: hue-rotate(360deg) saturate(1.2) brightness(1); }
-}
-.grid-wrap.psycho { animation: psycho 1.1s ease-in-out infinite; }
+/* ── Flash overlay ── */
+#flash-overlay{position:fixed;inset:0;pointer-events:none;z-index:200;opacity:0;}
+@keyframes gem-flash{0%{background:rgba(6,239,239,.45);opacity:1;}100%{background:rgba(6,239,239,0);opacity:0;}}
+@keyframes shield-flash{0%{background:rgba(34,197,94,.35);opacity:1;}100%{background:rgba(34,197,94,0);opacity:0;}}
+@keyframes bite-flash{0%{background:rgba(244,63,94,.35);opacity:1;}100%{background:rgba(244,63,94,0);opacity:0;}}
+#flash-overlay.fl-gem   {animation:gem-flash .4s ease-out forwards;}
+#flash-overlay.fl-shield{animation:shield-flash .35s ease-out forwards;}
+#flash-overlay.fl-bite  {animation:bite-flash .35s ease-out forwards;}
 
-@keyframes vignette-pulse {
-  0%,100% { box-shadow: inset 0 0 80px rgba(168,85,247,0); }
-  50%      { box-shadow: inset 0 0 80px rgba(168,85,247,0.55); }
+/* ── Psychosis ── */
+@keyframes psycho{
+  0%  {filter:hue-rotate(0deg) saturate(1.2) brightness(1);}
+  20% {filter:hue-rotate(80deg) saturate(2.8) brightness(1.08);}
+  40% {filter:hue-rotate(170deg) saturate(3.5) brightness(.9) blur(.5px);}
+  60% {filter:hue-rotate(260deg) saturate(3) brightness(1.12);}
+  80% {filter:hue-rotate(330deg) saturate(2.5) brightness(.87) blur(1px);}
+  100%{filter:hue-rotate(360deg) saturate(1.2) brightness(1);}
 }
-#screen-game.psycho-screen { animation: vignette-pulse 1s ease-in-out infinite; }
+.grid-wrap.psycho{animation:psycho 1.1s ease-in-out infinite;}
+@keyframes vignette-pulse{
+  0%,100%{box-shadow:inset 0 0 80px rgba(168,85,247,0);}
+  50%    {box-shadow:inset 0 0 80px rgba(168,85,247,.6);}
+}
+#screen-game.psycho-screen{animation:vignette-pulse 1s ease-in-out infinite;}
 
-/* ── Gem & crystal animations ── */
-@keyframes gem-glow {
-  0%,100% { box-shadow: 0 0 4px rgba(168,85,247,0.3), 0 0 8px rgba(6,239,239,0.1); }
-  50%      { box-shadow: 0 0 16px rgba(168,85,247,0.9), 0 0 24px rgba(6,239,239,0.5); }
+/* ── Cell animations ── */
+@keyframes gem-glow{
+  0%,100%{box-shadow:0 0 4px rgba(168,85,247,.3),0 0 8px rgba(6,239,239,.1);}
+  50%    {box-shadow:0 0 18px rgba(168,85,247,.9),0 0 28px rgba(6,239,239,.5);}
 }
-.crystal-cell { animation: gem-glow 1.6s ease-in-out infinite; }
-
-@keyframes gem-sparkle {
-  0%,100% { filter: brightness(1); }
-  50%      { filter: brightness(1.6) drop-shadow(0 0 5px #06efef); }
+.crystal-cell{animation:gem-glow 1.6s ease-in-out infinite;}
+@keyframes gem-sparkle{
+  0%,100%{filter:brightness(1);}
+  50%    {filter:brightness(1.7) drop-shadow(0 0 6px #06efef);}
 }
-.cell.has-gem { animation: gem-sparkle 1.4s ease-in-out infinite; }
-
-@keyframes hall-flicker {
-  0%,100% { opacity: 0.5; }
-  50%      { opacity: 0.25; }
+.cell.has-gem{animation:gem-sparkle 1.4s ease-in-out infinite;}
+@keyframes food-pulse{
+  0%,100%{box-shadow:0 0 4px rgba(34,197,94,.3);}
+  50%    {box-shadow:0 0 12px rgba(34,197,94,.7);}
 }
-.cell.hallucination { animation: hall-flicker 0.55s ease-in-out infinite; }
+.cell.has-food{animation:food-pulse 1.8s ease-in-out infinite;}
+@keyframes drink-pulse{
+  0%,100%{box-shadow:0 0 4px rgba(251,191,36,.3);}
+  50%    {box-shadow:0 0 12px rgba(251,191,36,.7);}
+}
+.cell.has-drink{animation:drink-pulse 1.6s ease-in-out infinite;}
+@keyframes shield-pulse{
+  0%,100%{box-shadow:0 0 6px rgba(56,189,248,.4);}
+  50%    {box-shadow:0 0 16px rgba(56,189,248,.9);}
+}
+.cell.has-shield{animation:shield-pulse 1.2s ease-in-out infinite;}
+@keyframes hall-flicker{0%,100%{opacity:.5;}50%{opacity:.22;}}
+.cell.hallucination{animation:hall-flicker .55s ease-in-out infinite;}
+@keyframes dog-wag{0%,100%{transform:rotate(0);}30%{transform:rotate(-8deg);}70%{transform:rotate(8deg);}}
+.cell.has-dog{animation:dog-wag 1s ease-in-out infinite;}
 
 /* ── Typography ── */
-.big-title {
-  font-size: clamp(2rem,9vw,2.8rem); font-weight: 900; text-transform: uppercase;
-  letter-spacing: 3px; text-align: center; line-height: 1.05; color: #fff;
-  text-shadow: 0 0 30px var(--purple), 0 0 60px var(--purple); margin-bottom: 6px;
-}
-.subtitle { color: var(--muted); font-size: 0.82rem; text-align: center; margin-bottom: 16px; }
-.harm-note {
-  font-size: 0.72rem; color: var(--muted); text-align: center;
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 8px 14px; margin-bottom: 20px; max-width: 280px; line-height: 1.5;
-}
+.big-title{font-size:clamp(2rem,9vw,2.8rem);font-weight:900;text-transform:uppercase;
+  letter-spacing:3px;text-align:center;line-height:1.05;color:#fff;
+  text-shadow:0 0 30px var(--purple),0 0 60px var(--purple);margin-bottom:6px;}
+.subtitle{color:var(--muted);font-size:.82rem;text-align:center;margin-bottom:12px;}
+.harm-note{font-size:.7rem;color:var(--muted);text-align:center;border:1px solid var(--border);
+  border-radius:8px;padding:8px 14px;margin-bottom:16px;max-width:280px;line-height:1.5;}
+.best-score{font-size:.72rem;color:var(--gem);margin-bottom:20px;}
 
 /* ── Buttons ── */
-.btn {
-  width: 100%; max-width: 280px; padding: 15px;
-  border-radius: 12px; font-size: 0.95rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.5px;
-  cursor: pointer; border: 2px solid; transition: opacity 0.12s;
-  margin-bottom: 10px; display: block; font-family: inherit;
-}
-.btn:active:not(:disabled) { opacity: 0.75; }
-.btn:disabled { opacity: 0.25; cursor: not-allowed; }
-.btn-purple { background: rgba(168,85,247,.18); border-color: var(--purple); color: var(--purple); }
-.btn-blue   { background: rgba(56,189,248,.18);  border-color: var(--blue);   color: var(--blue); }
-.btn-ghost  { background: none; border-color: var(--border); color: var(--muted); }
+.btn{width:100%;max-width:280px;padding:15px;border-radius:12px;font-size:.95rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:2px solid;
+  transition:opacity .12s;margin-bottom:10px;display:block;font-family:inherit;}
+.btn:active:not(:disabled){opacity:.75;}.btn:disabled{opacity:.25;cursor:not-allowed;}
+.btn-purple{background:rgba(168,85,247,.18);border-color:var(--purple);color:var(--purple);}
+.btn-blue  {background:rgba(56,189,248,.18); border-color:var(--blue);  color:var(--blue);}
+.btn-ghost {background:none;border-color:var(--border);color:var(--muted);}
 
 /* ── Code display ── */
-.code-box {
-  background: var(--surface); border: 2px solid var(--purple);
-  border-radius: 16px; padding: 22px 32px; text-align: center;
-  margin-bottom: 20px; width: 100%; max-width: 280px;
-}
-.code-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
-.code-value { font-size: 3.2rem; font-weight: 900; letter-spacing: 10px; color: var(--purple); font-family: 'Courier New', monospace; }
+.code-box{background:var(--surface);border:2px solid var(--purple);border-radius:16px;
+  padding:22px 32px;text-align:center;margin-bottom:20px;width:100%;max-width:280px;}
+.code-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.code-value{font-size:3.2rem;font-weight:900;letter-spacing:10px;color:var(--purple);font-family:'Courier New',monospace;}
+.code-input{background:var(--surface);border:2px solid var(--border);border-radius:12px;
+  padding:15px;font-size:2.4rem;font-weight:900;letter-spacing:10px;color:var(--text);
+  text-align:center;width:100%;max-width:280px;font-family:'Courier New',monospace;
+  margin-bottom:10px;outline:none;}
+.code-input:focus{border-color:var(--blue);}
+.hint{color:var(--muted);font-size:.82rem;text-align:center;margin-bottom:14px;min-height:20px;}
+.back{position:absolute;top:14px;left:14px;background:none;border:none;color:var(--muted);
+  font-size:1.3rem;cursor:pointer;padding:8px;z-index:5;}
+.spinner{width:36px;height:36px;border-radius:50%;border:3px solid var(--border);
+  border-top-color:var(--purple);animation:spin .75s linear infinite;margin:4px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* ── Input ── */
-.code-input {
-  background: var(--surface); border: 2px solid var(--border);
-  border-radius: 12px; padding: 15px; font-size: 2.4rem;
-  font-weight: 900; letter-spacing: 10px; color: var(--text);
-  text-align: center; width: 100%; max-width: 280px;
-  font-family: 'Courier New', monospace; margin-bottom: 10px; outline: none;
-}
-.code-input:focus { border-color: var(--blue); }
-.hint { color: var(--muted); font-size: 0.82rem; text-align: center; margin-bottom: 14px; min-height: 20px; }
+/* ═══════ GAME SCREEN ═══════ */
+.game-hdr{width:100%;background:var(--surface);border-bottom:1px solid var(--border);
+  padding:9px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.turn-pill{font-size:.68rem;font-weight:700;padding:4px 10px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border:1px solid;}
+.pill-mine  {background:rgba(34,197,94,.15);color:var(--green);border-color:var(--green);}
+.pill-theirs{background:rgba(107,114,128,.1);color:var(--muted);border-color:var(--border);}
+.sleep-wrap{flex:1;min-width:0;}
+.sleep-meta{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);margin-bottom:3px;}
+.sleep-track{background:#0d0f1a;height:7px;border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+.sleep-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--red));transition:width .3s;}
+.gems-ct{font-size:.8rem;font-weight:700;color:var(--gem);white-space:nowrap;}
 
-/* ── Back button ── */
-.back { position: absolute; top: 14px; left: 14px; background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; padding: 8px; z-index: 5; }
-
-/* ── Spinner ── */
-.spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--purple); animation: spin 0.75s linear infinite; margin: 4px auto; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ═══════════════ GAME SCREEN ═══════════════ */
-.game-hdr {
-  width: 100%; background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 9px 12px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-}
-.turn-pill { font-size: 0.68rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; border: 1px solid; }
-.pill-mine   { background: rgba(34,197,94,.15);  color: var(--green);  border-color: var(--green); }
-.pill-theirs { background: rgba(107,114,128,.1); color: var(--muted);  border-color: var(--border); }
-
-.sleep-wrap { flex: 1; min-width: 0; }
-.sleep-meta { display: flex; justify-content: space-between; font-size: 0.62rem; color: var(--muted); margin-bottom: 3px; }
-.sleep-track { background: #0d0f1a; height: 7px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
-.sleep-fill  { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--red)); transition: width .3s; }
-.gems-ct { font-size: 0.8rem; font-weight: 700; color: var(--gem); white-space: nowrap; }
-
-/* Status badges */
-.status-row { display: flex; gap: 4px; flex-wrap: wrap; padding: 4px 12px; background: var(--bg); flex-shrink: 0; min-height: 26px; }
-.sbadge { font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 8px; border: 1px solid; }
-.sbadge-smoke  { color: var(--green);  border-color: var(--green);  background: rgba(34,197,94,.12); }
-.sbadge-crash  { color: var(--red);    border-color: var(--red);    background: rgba(244,63,94,.12); }
-.sbadge-jitter { color: var(--yellow); border-color: var(--yellow); background: rgba(251,191,36,.12); }
-.sbadge-nausea { color: var(--orange); border-color: var(--orange); background: rgba(249,115,22,.12); }
-.sbadge-psycho { color: var(--purple); border-color: var(--purple); background: rgba(168,85,247,.2);  }
+/* Status */
+.status-row{display:flex;gap:4px;flex-wrap:wrap;padding:4px 12px;background:var(--bg);flex-shrink:0;min-height:26px;}
+.sbadge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:8px;border:1px solid;}
+.sbadge-smoke {color:var(--green); border-color:var(--green); background:rgba(34,197,94,.12);}
+.sbadge-crash {color:var(--red);   border-color:var(--red);   background:rgba(244,63,94,.12);}
+.sbadge-jitter{color:var(--yellow);border-color:var(--yellow);background:rgba(251,191,36,.12);}
+.sbadge-nausea{color:var(--orange);border-color:var(--orange);background:rgba(249,115,22,.12);}
+.sbadge-psycho{color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.2);}
+.sbadge-shield{color:var(--blue);  border-color:var(--blue);  background:rgba(56,189,248,.15);}
 
 /* Grid */
-.grid-wrap {
-  flex: 1; width: 100%; display: flex;
-  align-items: center; justify-content: center;
-  padding: 6px; min-height: 0;
-}
-#grid {
-  display: grid; grid-template-columns: repeat(7,1fr);
-  gap: clamp(2px,0.7vw,4px); width: 100%;
-  max-width: min(calc(100vw - 12px), calc(100vh - 300px));
-  aspect-ratio: 1;
-}
-.cell {
-  aspect-ratio: 1; background: #0e1018; border: 1px solid #1a1d2e;
-  border-radius: 6px; display: flex; align-items: center; justify-content: center;
-  font-size: clamp(0.85rem,3.8vw,1.3rem); cursor: default;
-  transition: background .12s, box-shadow .12s; user-select: none;
-}
-.cell.movable { background: #151825; border-color: rgba(255,255,255,.22); box-shadow: inset 0 0 5px rgba(255,255,255,.07); cursor: pointer; }
-.cell.movable:active { background: #1e2438; }
-.cell.crystal-cell  { background: #1e0d33; border: 2px solid var(--purple); border-radius: 8px; }
+.grid-wrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:6px;min-height:0;}
+#grid{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(2px,.7vw,4px);
+  width:100%;max-width:min(calc(100vw - 12px),calc(100vh - 300px));aspect-ratio:1;}
+.cell{aspect-ratio:1;background:#0e1018;border:1px solid #1a1d2e;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(.85rem,3.8vw,1.3rem);cursor:default;
+  transition:background .12s,box-shadow .12s;user-select:none;}
+.cell.movable{background:#151825;border-color:rgba(255,255,255,.22);
+  box-shadow:inset 0 0 5px rgba(255,255,255,.07);cursor:pointer;}
+.cell.movable:active{background:#1e2438;}
+.cell.crystal-cell{background:#1e0d33;border:2px solid var(--purple);border-radius:8px;}
 
-/* Log */
-.log-line {
-  width: 100%; padding: 5px 12px; background: #060709;
-  border-top: 1px solid var(--border); font-size: 0.68rem;
-  color: var(--muted); flex-shrink: 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  font-family: 'Courier New', monospace;
-}
+.log-line{width:100%;padding:5px 12px;background:#060709;border-top:1px solid var(--border);
+  font-size:.68rem;color:var(--muted);flex-shrink:0;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;font-family:'Courier New',monospace;}
 
 /* ── Consume bar ── */
-.consume-section {
-  width: 100%; background: var(--surface);
-  border-top: 1px solid var(--border); flex-shrink: 0;
-  padding: 5px 8px 8px;
-}
-.consume-hdr { font-size: 0.54rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center; padding-bottom: 5px; }
-.consume-row { display: flex; gap: 5px; margin-bottom: 5px; }
-.consume-row:last-child { margin-bottom: 0; }
-.cbtn {
-  flex: 1; padding: 7px 3px; border-radius: 10px;
-  font-size: 0.6rem; font-weight: 700; cursor: pointer;
-  border: 1.5px solid; font-family: inherit;
-  line-height: 1.4; text-align: center; text-transform: uppercase;
-  transition: opacity 0.1s;
-}
-.cbtn:active:not(:disabled) { opacity: 0.7; }
-.cbtn:disabled { opacity: 0.2; cursor: not-allowed; }
-.cbtn .ico  { font-size: 1.15em; display: block; margin-bottom: 1px; }
-.cbtn .risk { font-size: 0.54rem; font-weight: 600; display: block; margin-top: 2px; text-transform: none; }
-.risk-ok   { color: var(--green); }
-.risk-warn { color: var(--yellow); }
-.risk-high { color: var(--orange); }
-.risk-crit { color: var(--red); }
-.cbtn-eat   { background: rgba(244,63,94,.12);  border-color: var(--red);    color: var(--red); }
-.cbtn-smoke { background: rgba(6,239,239,.1);   border-color: var(--gem);    color: var(--gem); }
-.cbtn-snort { background: rgba(251,191,36,.1);  border-color: var(--yellow); color: var(--yellow); }
-.cbtn-booty { background: rgba(249,115,22,.1);  border-color: var(--orange); color: var(--orange); }
-.cbtn-iv    { background: rgba(168,85,247,.15); border-color: var(--purple); color: var(--purple); }
+.consume-section{width:100%;background:var(--surface);border-top:1px solid var(--border);
+  flex-shrink:0;padding:5px 8px 8px;}
+.consume-hdr{font-size:.54rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1.5px;text-align:center;padding-bottom:5px;}
+.consume-row{display:flex;gap:5px;margin-bottom:5px;}
+.consume-row:last-child{margin-bottom:0;}
+.cbtn{flex:1;padding:7px 3px;border-radius:10px;font-size:.6rem;font-weight:700;
+  cursor:pointer;border:1.5px solid;font-family:inherit;line-height:1.4;
+  text-align:center;text-transform:uppercase;transition:opacity .1s;}
+.cbtn:active:not(:disabled){opacity:.7;}.cbtn:disabled{opacity:.2;cursor:not-allowed;}
+.cbtn .ico{font-size:1.15em;display:block;margin-bottom:1px;}
+.cbtn .risk{font-size:.54rem;font-weight:600;display:block;margin-top:2px;text-transform:none;}
+.risk-ok  {color:var(--green);}  .risk-warn{color:var(--yellow);}
+.risk-high{color:var(--orange);} .risk-crit{color:var(--red);}
+.cbtn-eat  {background:rgba(244,63,94,.12); border-color:var(--red);    color:var(--red);}
+.cbtn-smoke{background:rgba(6,239,239,.1);  border-color:var(--gem);    color:var(--gem);}
+.cbtn-snort{background:rgba(251,191,36,.1); border-color:var(--yellow); color:var(--yellow);}
+.cbtn-booty{background:rgba(249,115,22,.1); border-color:var(--orange); color:var(--orange);}
+.cbtn-iv   {background:rgba(168,85,247,.15);border-color:var(--purple); color:var(--purple);}
 
 /* Waiting overlay */
-.w-overlay { position: absolute; inset: 0; background: rgba(7,8,15,.82); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; gap: 12px; }
-.w-overlay.show { display: flex; }
-.w-label { color: var(--muted); font-size: 0.88rem; }
+.w-overlay{position:absolute;inset:0;background:rgba(7,8,15,.82);display:none;
+  flex-direction:column;align-items:center;justify-content:center;z-index:20;gap:12px;}
+.w-overlay.show{display:flex;}
+.w-label{color:var(--muted);font-size:.88rem;}
 
-/* End screen */
-.end-emoji { font-size: 5rem; margin-bottom: 12px; }
-.end-title { font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
-.end-win  { color: var(--green); text-shadow: 0 0 20px var(--green); }
-.end-lose { color: var(--red);   text-shadow: 0 0 20px var(--red); }
-.end-body { color: var(--muted); font-size: 0.88rem; text-align: center; max-width: 260px; line-height: 1.6; margin-bottom: 28px; }
+/* End */
+.end-emoji{font-size:5rem;margin-bottom:12px;}
+.end-title{font-size:2rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+.end-win {color:var(--green);text-shadow:0 0 20px var(--green);}
+.end-lose{color:var(--red);  text-shadow:0 0 20px var(--red);}
+.end-body{color:var(--muted);font-size:.88rem;text-align:center;max-width:260px;line-height:1.6;margin-bottom:16px;}
+.end-score{color:var(--gem);font-size:.9rem;margin-bottom:24px;}
 </style>
 </head>
 <body>
+<div id="flash-overlay"></div>
 
 <!-- ══ HOME ══ -->
 <div id="screen-home" class="screen active">
   <div class="big-title">💎<br>Cursed<br>Crystals</div>
   <div class="subtitle">Co-op survival · 2 players · separate phones</div>
-  <div class="harm-note">⚠️ Harm reduction sim — every side effect shown is based on real crystal meth use. See what it does before you decide.</div>
+  <div class="harm-note">⚠️ Harm-reduction sim — every side effect shown is based on real crystal meth use. See what it does before you decide.</div>
+  <div id="home-best" class="best-score"></div>
   <button class="btn btn-purple" onclick="startHost()">Host Game</button>
   <button class="btn btn-blue"   onclick="showJoin()">Join Game</button>
-  <button class="btn btn-ghost"  onclick="startSolo()" style="margin-top:6px;font-size:0.8rem">Solo Test Mode</button>
+  <button class="btn btn-ghost"  onclick="startSolo()" style="margin-top:6px;font-size:.8rem">Solo Test Mode</button>
 </div>
 
 <!-- ══ HOSTING ══ -->
@@ -264,46 +249,26 @@ html, body {
   <div class="game-hdr">
     <div id="turn-pill" class="turn-pill pill-mine">Your Turn</div>
     <div class="sleep-wrap">
-      <div class="sleep-meta">
-        <span>😴 Sleepiness</span>
-        <span id="sleep-val">50</span>/100
-      </div>
+      <div class="sleep-meta"><span>😴 Sleepiness</span><span id="sleep-val">50</span>/100</div>
       <div class="sleep-track"><div id="sleep-fill" class="sleep-fill" style="width:50%"></div></div>
     </div>
     <div id="gems-ct" class="gems-ct">💎 0/5</div>
   </div>
-
   <div id="status-row" class="status-row"></div>
-
-  <div class="grid-wrap" id="grid-wrap">
-    <div id="grid"></div>
-  </div>
-
+  <div class="grid-wrap" id="grid-wrap"><div id="grid"></div></div>
   <div id="log-line" class="log-line">&gt; Game on.</div>
-
   <div class="consume-section">
     <div class="consume-hdr">— use shard (costs 1 gem) —</div>
     <div class="consume-row">
-      <button id="btn-eat"   class="cbtn cbtn-eat"   onclick="sendConsume('eat')"   disabled>
-        <span class="ico">🍽</span>EAT<span class="risk risk-ok">safe · -30 sleep</span>
-      </button>
-      <button id="btn-smoke" class="cbtn cbtn-smoke" onclick="sendConsume('smoke')" disabled>
-        <span class="ico">💨</span>SMOKE<span class="risk risk-warn">⚠ crash follows</span>
-      </button>
-      <button id="btn-snort" class="cbtn cbtn-snort" onclick="sendConsume('snort')" disabled>
-        <span class="ico">👃</span>SNORT<span class="risk risk-warn">⚠ jitters 3T</span>
-      </button>
+      <button id="btn-eat"   class="cbtn cbtn-eat"   onclick="sendConsume('eat')"   disabled><span class="ico">🍽</span>EAT<span class="risk risk-ok">safe · -30 sleep</span></button>
+      <button id="btn-smoke" class="cbtn cbtn-smoke" onclick="sendConsume('smoke')" disabled><span class="ico">💨</span>SMOKE<span class="risk risk-warn">⚠ crash follows</span></button>
+      <button id="btn-snort" class="cbtn cbtn-snort" onclick="sendConsume('snort')" disabled><span class="ico">👃</span>SNORT<span class="risk risk-warn">⚠ jitters 3T</span></button>
     </div>
     <div class="consume-row">
-      <button id="btn-booty" class="cbtn cbtn-booty" onclick="sendConsume('booty')" disabled>
-        <span class="ico">💊</span>BOOTY BUMP<span class="risk risk-high">🔴 30% bad reaction</span>
-      </button>
-      <button id="btn-iv"    class="cbtn cbtn-iv"    onclick="sendConsume('iv')"    disabled>
-        <span class="ico">💉</span>IV MAINLINE<span class="risk risk-crit">☠️ 40% psychosis</span>
-      </button>
+      <button id="btn-booty" class="cbtn cbtn-booty" onclick="sendConsume('booty')" disabled><span class="ico">💊</span>BOOTY BUMP<span class="risk risk-high">🔴 30% bad reaction</span></button>
+      <button id="btn-iv"    class="cbtn cbtn-iv"    onclick="sendConsume('iv')"    disabled><span class="ico">💉</span>IV MAINLINE<span class="risk risk-crit">☠️ 40% psychosis</span></button>
     </div>
   </div>
-
   <div id="w-overlay" class="w-overlay show">
     <div class="spinner"></div>
     <div id="w-label" class="w-label">Connecting…</div>
@@ -314,7 +279,8 @@ html, body {
 <div id="screen-end" class="screen">
   <div id="end-emoji" class="end-emoji">👻</div>
   <div id="end-title" class="end-title end-lose">Game Over</div>
-  <div id="end-body"  class="end-body">Crystal passed out…</div>
+  <div id="end-body"  class="end-body"></div>
+  <div id="end-score" class="end-score"></div>
   <button class="btn btn-purple" onclick="goHome()">Play Again</button>
 </div>
 
@@ -322,402 +288,484 @@ html, body {
 <script>
 // ═══════════════════════════════════════════════
 //  CURSED CRYSTALS — P2P Multiplayer
-//  Host = Player 1 (authoritative state)
+//  Host = Player 1 (authoritative)
 //  Joiner = Player 2 (sends actions, receives state)
 // ═══════════════════════════════════════════════
 
 const GRID_SIZE   = 7;
 const WIN_GEMS    = 5;
 const SLEEP_LIMIT = 100;
-const PEER_CFG    = { config: { iceServers: [
-  { urls: 'stun:stun.l.google.com:19302' },
-  { urls: 'stun:stun1.l.google.com:19302' },
-  { urls: 'stun:stun.relay.metered.ca:80' },
+const PEER_CFG    = { config:{ iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+  {urls:'stun:stun.relay.metered.ca:80'},
 ]}};
 
-let peer = null, conn = null, amHost = false, soloMode = false;
-let gs = null, pendingAction = false, lastShookLog = '';
+var peer=null,conn=null,amHost=false,soloMode=false;
+var gs=null,pendingAction=false,lastShookLog='',lastGems=-1;
 
-// ─── Screen helpers ────────────────────────────────────────────────
+// ─── Audio ─────────────────────────────────────────────────────────
+var audioCtx=null;
+function getACtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+document.addEventListener('touchstart',()=>{try{getACtx().resume();}catch(e){}},{once:true});
+document.addEventListener('click',()=>{try{getACtx().resume();}catch(e){}},{once:true});
 
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
+function beep(freq,dur,type='sine',vol=0.08,delay=0){
+  try{
+    const ctx=getACtx(),osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type=type;osc.frequency.value=freq;
+    const t=ctx.currentTime+delay;
+    gain.gain.setValueAtTime(vol,t);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    osc.start(t);osc.stop(t+dur);
+  }catch(e){}
 }
 
-function goHome() {
-  try { if (conn) conn.close(); } catch(e){}
-  try { if (peer) peer.destroy(); } catch(e){}
-  conn = null; peer = null; gs = null; amHost = false; soloMode = false;
-  pendingAction = false; lastShookLog = '';
+function sfx(name){
+  switch(name){
+    case 'gem':      beep(880,.08);beep(1200,.12,undefined,undefined,.07);break;
+    case 'food':     beep(660,.1,'triangle');break;
+    case 'drink':    beep(550,.08);beep(770,.1,undefined,undefined,.06);break;
+    case 'shield':   beep(440,.08);beep(660,.12,undefined,undefined,.06);break;
+    case 'bite':     beep(180,.2,'square',.12);break;
+    case 'eat':      beep(440,.12,'triangle');break;
+    case 'smoke':    beep(320,.15,'sawtooth',.06);break;
+    case 'snort':    beep(550,.1,'triangle',.07);break;
+    case 'booty_ok': beep(480,.12);break;
+    case 'booty_bad':beep(160,.3,'sawtooth',.1);break;
+    case 'iv_ok':    beep(600,.15);break;
+    case 'psychosis':beep(120,.8,'sawtooth',.1);break;
+    case 'miss':     beep(90,.3,'square',.1);break;
+    case 'crash':    beep(200,.5,'sawtooth',.08);break;
+    case 'win':      [880,1100,1320,1760].forEach((f,i)=>beep(f,.15,'sine',.09,i*.08));break;
+    case 'lose':     beep(220,.35,'sawtooth',.09);beep(150,.6,'sawtooth',.09,.3);break;
+    case 'overdose': beep(100,.4,'sawtooth',.12);beep(60,.8,'sawtooth',.1,.35);break;
+  }
+}
+
+// ─── High score ────────────────────────────────────────────────────
+function getBest(){return parseInt(localStorage.getItem('cc_best_gems')||'0');}
+function saveBest(gems){if(gems>getBest())localStorage.setItem('cc_best_gems',String(gems));}
+function updateHomeBest(){
+  const b=getBest();
+  document.getElementById('home-best').textContent=b>0?'🏆 Best: '+b+' gems collected':'';
+}
+
+// ─── Screens ───────────────────────────────────────────────────────
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function goHome(){
+  try{if(conn)conn.close();}catch(e){}
+  try{if(peer)peer.destroy();}catch(e){}
+  conn=null;peer=null;gs=null;amHost=false;soloMode=false;
+  pendingAction=false;lastShookLog='';lastGems=-1;
   clearPsychoFx();
+  updateHomeBest();
   show('home');
 }
-
-function startSolo() {
-  amHost = true; soloMode = true;
-  gs = makeState(); gs.turn = 1;
-  conn = { open: false };
-  show('game'); renderGame();
+function startSolo(){
+  amHost=true;soloMode=true;gs=makeState();gs.turn=1;
+  conn={open:false};lastGems=-1;show('game');renderGame();
 }
-
-function showJoin() {
-  document.getElementById('join-input').value = '';
-  document.getElementById('join-hint').textContent = 'Enter your friend\'s room code';
+function showJoin(){
+  document.getElementById('join-input').value='';
+  document.getElementById('join-hint').textContent='Enter your friend\'s room code';
   show('join');
 }
 
 // ─── Host ──────────────────────────────────────────────────────────
-
-function startHost() {
+function startHost(){
   show('host');
-  const code = String(1000 + Math.floor(Math.random() * 9000));
-  document.getElementById('host-code').textContent = code;
-  document.getElementById('host-hint').textContent = 'Connecting to network…';
-  amHost = true;
-  peer = new Peer(code, PEER_CFG);
-  peer.on('open', () => { document.getElementById('host-hint').textContent = 'Share this code with your friend'; });
-  peer.on('connection', c => { conn = c; document.getElementById('host-hint').textContent = 'Friend found! Starting…'; wireConn(); });
-  peer.on('error', err => { document.getElementById('host-hint').textContent = 'Network error: ' + err.type + '. Go back and retry.'; });
+  const code=String(1000+Math.floor(Math.random()*9000));
+  document.getElementById('host-code').textContent=code;
+  document.getElementById('host-hint').textContent='Connecting to network…';
+  amHost=true;
+  peer=new Peer(code,PEER_CFG);
+  peer.on('open',()=>{document.getElementById('host-hint').textContent='Share this code with your friend';});
+  peer.on('connection',c=>{conn=c;document.getElementById('host-hint').textContent='Friend found! Starting…';wireConn();});
+  peer.on('error',err=>{document.getElementById('host-hint').textContent='Network error: '+err.type+'. Go back and retry.';});
 }
 
 // ─── Joiner ────────────────────────────────────────────────────────
-
-function joinGame() {
-  const code = document.getElementById('join-input').value.trim();
-  if (code.length !== 4) { document.getElementById('join-hint').textContent = 'Enter the full 4-digit code'; return; }
-  document.getElementById('join-hint').textContent = 'Connecting…';
-  amHost = false;
-  peer = new Peer(undefined, PEER_CFG);
-  peer.on('open', () => { conn = peer.connect(code, { reliable: true }); wireConn(); });
-  peer.on('error', () => { document.getElementById('join-hint').textContent = 'Could not connect. Check the code.'; });
+function joinGame(){
+  const code=document.getElementById('join-input').value.trim();
+  if(code.length!==4){document.getElementById('join-hint').textContent='Enter the full 4-digit code';return;}
+  document.getElementById('join-hint').textContent='Connecting…';
+  amHost=false;
+  peer=new Peer(undefined,PEER_CFG);
+  peer.on('open',()=>{conn=peer.connect(code,{reliable:true});wireConn();});
+  peer.on('error',()=>{document.getElementById('join-hint').textContent='Could not connect. Check the code.';});
 }
 
-// ─── Connection wiring ──────────────────────────────────────────────
-
-function wireConn() {
-  conn.on('open', () => {
-    if (amHost) { gs = makeState(); send({ type: 'state', gs }); show('game'); renderGame(); }
+// ─── Connection ─────────────────────────────────────────────────────
+function wireConn(){
+  conn.on('open',()=>{
+    if(amHost){gs=makeState();send({type:'state',gs});show('game');renderGame();}
   });
-  conn.on('data', msg => {
-    if (msg.type === 'state') { gs = msg.gs; pendingAction = false; show('game'); renderGame(); }
-    else if (amHost && msg.type === 'move')    { hostApplyMove(msg.r, msg.c); }
-    else if (amHost && msg.type === 'consume') { hostApplyConsume(msg.method); }
+  conn.on('data',msg=>{
+    if(msg.type==='state'){gs=msg.gs;pendingAction=false;show('game');renderGame();}
+    else if(amHost&&msg.type==='move'){hostApplyMove(msg.r,msg.c);}
+    else if(amHost&&msg.type==='consume'){hostApplyConsume(msg.method);}
   });
-  conn.on('close', () => { if (gs && gs.phase === 'playing') { alert('Friend disconnected.'); goHome(); } });
-  conn.on('error', () => { alert('Connection error. Please restart.'); goHome(); });
+  conn.on('close',()=>{if(gs&&gs.phase==='playing'){alert('Friend disconnected.');goHome();}});
+  conn.on('error',()=>{alert('Connection error. Please restart.');goHome();});
 }
-
-function send(msg) { if (conn && conn.open) conn.send(msg); }
+function send(msg){if(conn&&conn.open)conn.send(msg);}
 
 // ─── State ─────────────────────────────────────────────────────────
-
-function makeState() {
-  const board = [];
-  for (let r = 0; r < GRID_SIZE; r++) {
+function makeState(){
+  const board=[];
+  for(let r=0;r<GRID_SIZE;r++){
     board.push([]);
-    for (let c = 0; c < GRID_SIZE; c++) {
-      if (r === 3 && c === 3) { board[r].push(''); continue; }
-      const p = Math.random();
-      board[r].push(p < 0.20 ? 'plant' : p < 0.35 ? 'dog' : p < 0.50 ? 'gem' : '');
+    for(let c=0;c<GRID_SIZE;c++){
+      if(r===3&&c===3){board[r].push('');continue;}
+      const p=Math.random();
+      board[r].push(
+        p<.13?'plant':p<.24?'dog':p<.38?'gem':
+        p<.44?'food':p<.49?'drink':p<.53?'shield':''
+      );
     }
   }
-  return {
-    board, pos: { r:3, c:3 },
-    sleep: 50, gems: 0,
-    smokeT: 0, crashT: 0,    // smoke / post-smoke crash
-    jittersT: 0,             // snort side-effect
-    nauseaT: 0,              // booty bad-reaction
-    psychosisT: 0,           // IV psychosis
-    overdosed: false,
-    turn: 1, phase: 'playing',
-    log: 'Crystal woke up cursed 💎 Collect 5 gems to break the curse!',
+  return{
+    board,pos:{r:3,c:3},
+    sleep:50,gems:0,
+    smokeT:0,crashT:0,  // smoke & crash
+    jittersT:0,         // snort
+    nauseaT:0,          // booty reaction
+    psychosisT:0,       // IV psychosis
+    shield:false,       // collected shield power-up
+    overdosed:false,
+    turn:1,phase:'playing',
+    log:'Crystal woke up cursed 💎 Collect 5 gems to break the curse!',
   };
 }
 
 // ─── Host logic ─────────────────────────────────────────────────────
+function hostApplyMove(r,c){
+  if(gs.phase!=='playing')return;
+  const item=gs.board[r][c];
+  gs.pos={r,c};gs.board[r][c]='';
 
-function hostApplyMove(r, c) {
-  if (gs.phase !== 'playing') return;
-  const item = gs.board[r][c];
-  gs.pos = { r, c }; gs.board[r][c] = '';
-
-  if (item === 'gem')        { gs.gems++; gs.log = '💎 Snatched a gem! Backpack: ' + gs.gems + '/' + WIN_GEMS; }
-  else if (item === 'dog')   { gs.log = '🐕 A tiny dog went absolutely feral.'; }
-  else if (item === 'plant') { gs.log = '🪴 Brushed past a potted plant.'; }
-  else if (gs.psychosisT > 0) {
-    const paranoid = [
-      '👁 Nothing there. Was it ever real?',
-      '🌀 The dog vanished — it was never there.',
-      '💀 Just a shadow. Your mind is lying.',
-      '🧠 You moved toward something that didn\'t exist.',
-    ];
-    gs.log = paranoid[Math.floor(Math.random() * paranoid.length)];
-  } else {
-    gs.log = 'Moved.';
+  if(item==='gem'){
+    gs.gems++;gs.log='💎 Snatched a gem! Backpack: '+gs.gems+'/'+WIN_GEMS;
+  }else if(item==='food'){
+    gs.sleep=Math.max(0,gs.sleep-10);gs.log='🍕 Food! -10 sleep. Take care of yourself.';
+  }else if(item==='drink'){
+    gs.sleep=Math.max(0,gs.sleep-20);gs.log='⚡ Energy drink — -20 sleep. Synthetic boost.';
+  }else if(item==='shield'){
+    gs.shield=true;gs.log='🛡️ Shield! Next dog bite or bad reaction blocked.';
+  }else if(item==='dog'){
+    gs.log='🐕 Bumped into a dog. It\'s fine.';
+  }else if(item==='plant'){
+    gs.log='🪴 Brushed past a potted plant.';
+  }else if(gs.psychosisT>0){
+    const p=['👁 Nothing there. Was it ever real?','🌀 That dog vanished — never existed.',
+             '💀 Just a shadow. Your mind is lying.','🧠 You moved toward something that didn\'t exist.'];
+    gs.log=p[Math.floor(Math.random()*p.length)];
+  }else{
+    gs.log='Moved.';
   }
 
-  roamDogs(); tickTurn(); checkEnd(); broadcastState();
+  roamDogs();tickTurn();checkEnd();broadcastState();
 }
 
-function hostApplyConsume(method) {
-  if (gs.phase !== 'playing' || gs.gems <= 0) return;
+function hostApplyConsume(method){
+  if(gs.phase!=='playing'||gs.gems<=0)return;
   gs.gems--;
 
-  if (method === 'eat') {
-    gs.sleep = Math.max(0, gs.sleep - 30);
-    gs.log = '🍽 Ate a gem raw — instant -30 sleepiness. Shard gone.';
+  if(method==='eat'){
+    gs.sleep=Math.max(0,gs.sleep-30);
+    gs.log='🍽 Ate a gem raw — -30 sleepiness. Shard gone.';
 
-  } else if (method === 'smoke') {
-    gs.smokeT = 5; gs.crashT = 0;
-    gs.log = '💨 Smoking a shard — sleep frozen 5 turns. Brace for the crash.';
+  }else if(method==='smoke'){
+    gs.smokeT=5;gs.crashT=0;
+    gs.log='💨 Smoking a shard — sleep frozen 5 turns. Brace for crash.';
 
-  } else if (method === 'snort') {
-    gs.sleep = Math.max(0, gs.sleep - 20);
-    gs.jittersT = 3;
-    gs.log = '👃 Snorted — -20 sleep. Heart racing. Jitters 3 turns (faster drain).';
+  }else if(method==='snort'){
+    gs.sleep=Math.max(0,gs.sleep-20);
+    gs.jittersT=3;
+    gs.log='👃 Snorted — -20 sleep. Heart racing. Jitters 3 turns.';
 
-  } else if (method === 'booty') {
-    gs.sleep = Math.max(0, gs.sleep - 40);
-    if (Math.random() < 0.30) {
-      gs.sleep = Math.min(SLEEP_LIMIT, gs.sleep + 25);
-      gs.nauseaT = 2;
-      gs.log = '💊 BOOTY BUMP — Bad reaction! Nausea. +25 sleep spike. Double drain 2T.';
-    } else {
-      gs.log = '💊 Booty bumped — -40 sleep. Awful, but it worked this time.';
+  }else if(method==='booty'){
+    gs.sleep=Math.max(0,gs.sleep-40);
+    if(Math.random()<.30){
+      if(gs.shield){
+        gs.shield=false;
+        gs.log='💊 Booty bumped — 🛡️ Shield absorbed the bad reaction! -40 sleep.';
+      }else{
+        gs.sleep=Math.min(SLEEP_LIMIT,gs.sleep+25);
+        gs.nauseaT=2;
+        gs.log='💊 BOOTY BUMP — Bad reaction! Nausea. +25 sleep spike. Double drain 2T.';
+      }
+    }else{
+      gs.log='💊 Booty bumped — -40 sleep. Awful, but worked this time.';
     }
 
-  } else if (method === 'iv') {
-    if (Math.random() < 0.25) {
-      gs.sleep = Math.min(SLEEP_LIMIT, gs.sleep + 10);
-      gs.log = '💉 MISSED VEIN — Injected into muscle. No effect. +10 sleep. Shard wasted.';
-    } else if (gs.sleep > 70 && Math.random() < 0.20) {
-      gs.overdosed = true; gs.phase = 'lost';
-      gs.log = '💀 OVERDOSE — Too much, too fast. This kills people. Game over.';
-    } else {
-      gs.sleep = Math.max(0, gs.sleep - 55);
-      if (Math.random() < 0.40) {
-        gs.psychosisT = 6;
-        gs.log = '💉 IV HIT — PSYCHOSIS triggered. Reality is fracturing. What is real?';
-      } else {
-        gs.log = '💉 Mainlined — -55 sleep. No psychosis this time. Lucky.';
+  }else if(method==='iv'){
+    if(Math.random()<.25){
+      gs.sleep=Math.min(SLEEP_LIMIT,gs.sleep+10);
+      gs.log='💉 MISSED VEIN — Injected into muscle. No effect. +10 sleep. Shard wasted.';
+    }else if(gs.sleep>70&&Math.random()<.20){
+      gs.overdosed=true;gs.phase='lost';
+      gs.log='💀 OVERDOSE — Too much, too fast. This kills people. Game over.';
+    }else{
+      gs.sleep=Math.max(0,gs.sleep-55);
+      if(Math.random()<.40){
+        gs.psychosisT=6;
+        gs.log='💉 IV HIT — PSYCHOSIS triggered. Reality is fracturing. What is real?';
+      }else{
+        gs.log='💉 Mainlined — -55 sleep. No psychosis this time. Lucky.';
       }
     }
   }
 
-  if (gs.phase === 'playing') { tickTurn(); checkEnd(); }
+  if(gs.phase==='playing'){tickTurn();checkEnd();}
   broadcastState();
 }
 
-function tickTurn() {
-  let inc = 8;
-
-  if (gs.smokeT > 0) {
-    inc = 0; gs.smokeT--;
-    if (gs.smokeT === 0) {
-      gs.sleep = Math.min(SLEEP_LIMIT, gs.sleep + 45);
-      gs.crashT = 3;
-      gs.log = '💥 Smoke wore off — +45 crash! Withdrawal 3 turns.';
+function tickTurn(){
+  let inc=8;
+  if(gs.smokeT>0){
+    inc=0;gs.smokeT--;
+    if(gs.smokeT===0){
+      gs.sleep=Math.min(SLEEP_LIMIT,gs.sleep+45);
+      gs.crashT=3;
+      gs.log='💥 Smoke wore off — +45 crash! Withdrawal 3 turns.';
     }
-  } else if (gs.crashT > 0) {
-    inc *= 2; gs.crashT--;
-  }
-
-  if (gs.jittersT > 0) { inc = Math.ceil(inc * 1.5); gs.jittersT--; }
-  if (gs.nauseaT  > 0) { inc *= 2; gs.nauseaT--; }
-
-  if (gs.psychosisT > 0) {
+  }else if(gs.crashT>0){inc*=2;gs.crashT--;}
+  if(gs.jittersT>0){inc=Math.ceil(inc*1.5);gs.jittersT--;}
+  if(gs.nauseaT>0){inc*=2;gs.nauseaT--;}
+  if(gs.psychosisT>0){
     gs.psychosisT--;
-    if (gs.psychosisT === 0) gs.log = '🧠 Psychosis lifting… What was real and what wasn\'t?';
+    if(gs.psychosisT===0)gs.log='🧠 Psychosis lifting… What was real and what wasn\'t?';
   }
-
-  gs.sleep = Math.min(SLEEP_LIMIT, gs.sleep + inc);
-  gs.turn  = gs.turn === 1 ? 2 : 1;
+  gs.sleep=Math.min(SLEEP_LIMIT,gs.sleep+inc);
+  gs.turn=gs.turn===1?2:1;
 }
 
-function roamDogs() {
-  for (let r = 0; r < GRID_SIZE; r++) {
-    for (let c = 0; c < GRID_SIZE; c++) {
-      if (gs.board[r][c] === 'dog' && Math.random() > 0.58) {
-        const nr = Math.min(GRID_SIZE-1, Math.max(0, r + (Math.random() > 0.5 ? 1 : -1)));
-        const nc = Math.min(GRID_SIZE-1, Math.max(0, c + (Math.random() > 0.5 ? 1 : -1)));
-        if (!gs.board[nr][nc] && !(nr === gs.pos.r && nc === gs.pos.c)) {
-          gs.board[r][c] = ''; gs.board[nr][nc] = 'dog';
+function roamDogs(){
+  for(let r=0;r<GRID_SIZE;r++){
+    for(let c=0;c<GRID_SIZE;c++){
+      if(gs.board[r][c]==='dog'&&Math.random()>.58){
+        const nr=Math.min(GRID_SIZE-1,Math.max(0,r+(Math.random()>.5?1:-1)));
+        const nc=Math.min(GRID_SIZE-1,Math.max(0,c+(Math.random()>.5?1:-1)));
+        // Dog bite if lands on player
+        if(nr===gs.pos.r&&nc===gs.pos.c){
+          gs.board[r][c]='';
+          if(gs.shield){
+            gs.shield=false;
+            gs.log='🛡️ Shield blocked a dog bite!';
+          }else{
+            gs.sleep=Math.min(SLEEP_LIMIT,gs.sleep+15);
+            gs.log='🐕 DOG BITE — +15 sleep. Little menace chomped Crystal.';
+          }
+        }else if(!gs.board[nr][nc]){
+          gs.board[r][c]='';gs.board[nr][nc]='dog';
         }
       }
     }
   }
 }
 
-function checkEnd() {
-  if (gs.gems >= WIN_GEMS)          gs.phase = 'won';
-  else if (gs.sleep >= SLEEP_LIMIT) gs.phase = 'lost';
+function checkEnd(){
+  if(gs.gems>=WIN_GEMS)         gs.phase='won';
+  else if(gs.sleep>=SLEEP_LIMIT)gs.phase='lost';
 }
+function broadcastState(){send({type:'state',gs});renderGame();}
 
-function broadcastState() { send({ type: 'state', gs }); renderGame(); }
-
-// ─── Joiner actions ─────────────────────────────────────────────────
-
-function sendMove(r, c) {
-  if (pendingAction) return;
-  pendingAction = true;
-  send({ type: 'move', r, c });
+// ─── Joiner actions ──────────────────────────────────────────────────
+function sendMove(r,c){
+  if(pendingAction)return;
+  pendingAction=true;send({type:'move',r,c});
   document.getElementById('w-overlay').classList.add('show');
-  document.getElementById('w-label').textContent = 'Waiting for host…';
+  document.getElementById('w-label').textContent='Waiting for host…';
 }
-
-function sendConsume(method) {
-  if (!isMyTurn() || pendingAction || !gs || gs.gems <= 0) return;
-  if (amHost) { hostApplyConsume(method); return; }
-  pendingAction = true;
-  send({ type: 'consume', method });
+function sendConsume(method){
+  if(!isMyTurn()||pendingAction||!gs||gs.gems<=0)return;
+  if(amHost){hostApplyConsume(method);return;}
+  pendingAction=true;send({type:'consume',method});
   document.getElementById('w-overlay').classList.add('show');
-  document.getElementById('w-label').textContent = 'Waiting for host…';
+  document.getElementById('w-label').textContent='Waiting for host…';
 }
 
-// ─── Visual effects ──────────────────────────────────────────────────
-
-function screenShake() {
-  const el = document.getElementById('screen-game');
-  el.classList.remove('shaking');
-  void el.offsetWidth;
+// ─── Visual effects ───────────────────────────────────────────────────
+function screenShake(){
+  const el=document.getElementById('screen-game');
+  el.classList.remove('shaking');void el.offsetWidth;
   el.classList.add('shaking');
-  el.addEventListener('animationend', () => el.classList.remove('shaking'), { once: true });
+  el.addEventListener('animationend',()=>el.classList.remove('shaking'),{once:true});
 }
-
-function clearPsychoFx() {
+function flash(cls){
+  const fl=document.getElementById('flash-overlay');
+  fl.className='';void fl.offsetWidth;fl.className=cls;
+  fl.addEventListener('animationend',()=>fl.className='',{once:true});
+}
+function clearPsychoFx(){
   document.getElementById('grid-wrap').classList.remove('psycho');
   document.getElementById('screen-game').classList.remove('psycho-screen');
 }
-
-function getHallucinations() {
-  if (!gs || !gs.psychosisT || gs.psychosisT <= 0) return new Map();
-  const hm = new Map();
-  const types = ['dog','dog','gem','plant','dog'];
-  const count = 2 + Math.floor(Math.random() * 3);
-  for (let i = 0; i < count; i++) {
-    const r = Math.floor(Math.random() * GRID_SIZE);
-    const c = Math.floor(Math.random() * GRID_SIZE);
-    const k = r + ',' + c;
-    if (!hm.has(k) && gs.board[r][c] === '' && !(r === gs.pos.r && c === gs.pos.c))
-      hm.set(k, types[Math.floor(Math.random() * types.length)]);
+function getHallucinations(){
+  if(!gs||!gs.psychosisT||gs.psychosisT<=0)return new Map();
+  const hm=new Map(),types=['dog','dog','gem','plant','dog'];
+  const count=2+Math.floor(Math.random()*3);
+  for(let i=0;i<count;i++){
+    const r=Math.floor(Math.random()*GRID_SIZE),c=Math.floor(Math.random()*GRID_SIZE),k=r+','+c;
+    if(!hm.has(k)&&gs.board[r][c]===''&&!(r===gs.pos.r&&c===gs.pos.c))
+      hm.set(k,types[Math.floor(Math.random()*types.length)]);
   }
   return hm;
 }
 
-// ─── Rendering ──────────────────────────────────────────────────────
-
-const ICONS = { plant:'🪴', dog:'🐕', gem:'💎' };
-const SHAKE_WORDS = ['MISSED VEIN','Bad reaction','PSYCHOSIS','OVERDOSE','crash','Withdrawal'];
-
-function isMyTurn() {
-  if (soloMode) return true;
-  return gs && ((amHost && gs.turn === 1) || (!amHost && gs.turn === 2));
+// ─── Character emoji based on state ───────────────────────────────────
+function crystalEmoji(){
+  if(!gs)return'👩🏻';
+  if(gs.overdosed)return'💀';
+  if(gs.psychosisT>0)return'😵‍💫';
+  if(gs.nauseaT>0)return'🤢';
+  if(gs.smokeT>0)return'🤩';
+  if(gs.sleep>75)return'😰';
+  if(gs.shield)return'🛡️';
+  return'👩🏻';
 }
 
-function renderGame() {
-  if (!gs) return;
+// ─── Rendering ────────────────────────────────────────────────────────
+const ICONS={plant:'🪴',dog:'🐕',gem:'💎',food:'🍕',drink:'⚡',shield:'🛡️'};
+const SHAKE_WORDS=['MISSED VEIN','Bad reaction','PSYCHOSIS','OVERDOSE','crash','Withdrawal','DOG BITE'];
+const SFX_MAP=[
+  ['💎 Snatched','gem'],['🍕','food'],['⚡ Energy','drink'],['🛡️ Shield!','shield'],
+  ['🛡️ Shield blocked','shield'],['DOG BITE','bite'],['Withdrawal','crash'],
+  ['PSYCHOSIS','psychosis'],['MISSED VEIN','miss'],['OVERDOSE','overdose'],
+  ['Booty bumped —','booty_ok'],['Bad reaction','booty_bad'],
+  ['Mainlined','iv_ok'],['💉 IV HIT','iv_ok'],['Snorted','snort'],
+  ['Ate a gem','eat'],['Smoking','smoke'],['Smoke wore off','crash'],
+];
 
-  // Shake on bad events (once per unique log)
-  if (gs.log !== lastShookLog && SHAKE_WORDS.some(w => gs.log.includes(w))) screenShake();
-  lastShookLog = gs.log;
+function isMyTurn(){
+  if(soloMode)return true;
+  return gs&&((amHost&&gs.turn===1)||(!amHost&&gs.turn===2));
+}
+
+function renderGame(){
+  if(!gs)return;
+
+  // Sound + shake on log changes
+  if(gs.log!==lastShookLog){
+    for(const[word,sound]of SFX_MAP){if(gs.log.includes(word)){sfx(sound);break;}}
+    if(SHAKE_WORDS.some(w=>gs.log.includes(w)))screenShake();
+    // Flash overlays
+    if(gs.log.includes('💎 Snatched'))flash('fl-gem');
+    else if(gs.log.includes('shield')||gs.log.includes('Shield'))flash('fl-shield');
+    else if(gs.log.includes('DOG BITE')||gs.log.includes('MISSED VEIN'))flash('fl-bite');
+  }
+  lastShookLog=gs.log;
+
+  // Gem collect flash independent check
+  if(lastGems>=0&&gs.gems>lastGems){flash('fl-gem');}
+  lastGems=gs.gems;
 
   // Header
-  const pill = document.getElementById('turn-pill');
-  if (gs.phase === 'playing') {
-    if (isMyTurn()) { pill.textContent = '⚡ Your Turn'; pill.className = 'turn-pill pill-mine'; }
-    else            { pill.textContent = "Friend's Turn"; pill.className = 'turn-pill pill-theirs'; }
+  const pill=document.getElementById('turn-pill');
+  if(gs.phase==='playing'){
+    if(isMyTurn()){pill.textContent='⚡ Your Turn';pill.className='turn-pill pill-mine';}
+    else          {pill.textContent="Friend's Turn";pill.className='turn-pill pill-theirs';}
   }
-  document.getElementById('sleep-val').textContent  = gs.sleep;
-  document.getElementById('sleep-fill').style.width = gs.sleep + '%';
-  document.getElementById('gems-ct').textContent    = '💎 ' + gs.gems + '/' + WIN_GEMS;
-  document.getElementById('log-line').textContent   = '> ' + gs.log;
+  document.getElementById('sleep-val').textContent =gs.sleep;
+  document.getElementById('sleep-fill').style.width=gs.sleep+'%';
+  document.getElementById('gems-ct').textContent   ='💎 '+gs.gems+'/'+WIN_GEMS;
+  document.getElementById('log-line').textContent  ='> '+gs.log;
 
   // Status badges
-  const sr = document.getElementById('status-row');
-  sr.innerHTML = '';
-  if (gs.smokeT    > 0) sr.innerHTML += `<span class="sbadge sbadge-smoke">💨 High (${gs.smokeT}T)</span>`;
-  if (gs.crashT    > 0) sr.innerHTML += `<span class="sbadge sbadge-crash">💥 Crash (${gs.crashT}T)</span>`;
-  if (gs.jittersT  > 0) sr.innerHTML += `<span class="sbadge sbadge-jitter">⚡ Jitters (${gs.jittersT}T)</span>`;
-  if (gs.nauseaT   > 0) sr.innerHTML += `<span class="sbadge sbadge-nausea">🤢 Nausea (${gs.nauseaT}T)</span>`;
-  if (gs.psychosisT> 0) sr.innerHTML += `<span class="sbadge sbadge-psycho">🧠 PSYCHOSIS (${gs.psychosisT}T)</span>`;
+  const sr=document.getElementById('status-row');
+  sr.innerHTML='';
+  if(gs.smokeT   >0)sr.innerHTML+=`<span class="sbadge sbadge-smoke">💨 High (${gs.smokeT}T)</span>`;
+  if(gs.crashT   >0)sr.innerHTML+=`<span class="sbadge sbadge-crash">💥 Crash (${gs.crashT}T)</span>`;
+  if(gs.jittersT >0)sr.innerHTML+=`<span class="sbadge sbadge-jitter">⚡ Jitters (${gs.jittersT}T)</span>`;
+  if(gs.nauseaT  >0)sr.innerHTML+=`<span class="sbadge sbadge-nausea">🤢 Nausea (${gs.nauseaT}T)</span>`;
+  if(gs.psychosisT>0)sr.innerHTML+=`<span class="sbadge sbadge-psycho">🧠 PSYCHOSIS (${gs.psychosisT}T)</span>`;
+  if(gs.shield)     sr.innerHTML+=`<span class="sbadge sbadge-shield">🛡️ Shield</span>`;
 
   // Psychosis visuals
-  const gw = document.getElementById('grid-wrap');
-  const sg = document.getElementById('screen-game');
-  if (gs.psychosisT > 0) { gw.classList.add('psycho'); sg.classList.add('psycho-screen'); }
-  else                   { gw.classList.remove('psycho'); sg.classList.remove('psycho-screen'); }
+  const gw=document.getElementById('grid-wrap'),sg=document.getElementById('screen-game');
+  if(gs.psychosisT>0){gw.classList.add('psycho');sg.classList.add('psycho-screen');}
+  else               {gw.classList.remove('psycho');sg.classList.remove('psycho-screen');}
 
   // Waiting overlay
-  const wo = document.getElementById('w-overlay');
-  if (!isMyTurn() && gs.phase === 'playing' && !pendingAction) {
-    wo.classList.add('show');
-    document.getElementById('w-label').textContent = "Friend's turn…";
-  } else if (isMyTurn() && gs.phase === 'playing') {
+  const wo=document.getElementById('w-overlay');
+  if(!isMyTurn()&&gs.phase==='playing'&&!pendingAction){
+    wo.classList.add('show');document.getElementById('w-label').textContent="Friend's turn…";
+  }else if(isMyTurn()&&gs.phase==='playing'){
     wo.classList.remove('show');
   }
 
   // Consume buttons
-  const canAct = isMyTurn() && gs.phase === 'playing' && gs.gems > 0 && !pendingAction;
-  ['btn-eat','btn-smoke','btn-snort','btn-booty','btn-iv'].forEach(id => {
-    document.getElementById(id).disabled = !canAct;
+  const canAct=isMyTurn()&&gs.phase==='playing'&&gs.gems>0&&!pendingAction;
+  ['btn-eat','btn-smoke','btn-snort','btn-booty','btn-iv'].forEach(id=>{
+    document.getElementById(id).disabled=!canAct;
   });
 
-  // Grid with hallucinations
-  const hallMap = getHallucinations();
-  const gridEl  = document.getElementById('grid');
-  gridEl.innerHTML = '';
+  // Grid + hallucinations
+  const hallMap=getHallucinations();
+  const gridEl=document.getElementById('grid');
+  gridEl.innerHTML='';
 
-  for (let r = 0; r < GRID_SIZE; r++) {
-    for (let c = 0; c < GRID_SIZE; c++) {
-      const cell       = document.createElement('div');
-      const isCrystal  = r === gs.pos.r && c === gs.pos.c;
-      const realItem   = gs.board[r][c];
-      const hallItem   = !isCrystal ? hallMap.get(r + ',' + c) : undefined;
-      const displayItem= realItem || hallItem || '';
+  for(let r=0;r<GRID_SIZE;r++){
+    for(let c=0;c<GRID_SIZE;c++){
+      const cell=document.createElement('div');
+      const isCrystal=r===gs.pos.r&&c===gs.pos.c;
+      const realItem=gs.board[r][c];
+      const hallItem=!isCrystal?hallMap.get(r+','+c):undefined;
+      const displayItem=realItem||hallItem||'';
+      const canMove=!isCrystal&&isMyTurn()&&gs.phase==='playing'&&!pendingAction
+        &&Math.abs(r-gs.pos.r)<=1&&Math.abs(c-gs.pos.c)<=1;
 
-      cell.className = 'cell';
-
-      const canMove = !isCrystal && isMyTurn() && gs.phase === 'playing' && !pendingAction
-        && Math.abs(r - gs.pos.r) <= 1 && Math.abs(c - gs.pos.c) <= 1;
-
-      if (isCrystal) {
+      cell.className='cell';
+      if(isCrystal){
         cell.classList.add('crystal-cell');
-        cell.textContent = '👩🏻';
-      } else {
-        cell.textContent = ICONS[displayItem] || '';
-        if (displayItem === 'gem')      cell.classList.add('has-gem');
-        if (hallItem && !realItem)      cell.classList.add('hallucination');
+        cell.textContent=crystalEmoji();
+      }else{
+        cell.textContent=ICONS[displayItem]||'';
+        if(displayItem==='gem')   cell.classList.add('has-gem');
+        if(displayItem==='dog')   cell.classList.add('has-dog');
+        if(displayItem==='food')  cell.classList.add('has-food');
+        if(displayItem==='drink') cell.classList.add('has-drink');
+        if(displayItem==='shield')cell.classList.add('has-shield');
+        if(hallItem&&!realItem)   cell.classList.add('hallucination');
       }
-
-      if (canMove) {
+      if(canMove){
         cell.classList.add('movable');
-        const _r = r, _c = c;
-        cell.addEventListener('click', () => { if (amHost) hostApplyMove(_r, _c); else sendMove(_r, _c); });
+        const _r=r,_c=c;
+        cell.addEventListener('click',()=>{if(amHost)hostApplyMove(_r,_c);else sendMove(_r,_c);});
       }
-
       gridEl.appendChild(cell);
     }
   }
 
   // End screen
-  if (gs.phase !== 'playing') {
+  if(gs.phase!=='playing'){
     clearPsychoFx();
-    setTimeout(() => {
-      const win = gs.phase === 'won';
-      const od  = gs.overdosed;
-      document.getElementById('end-emoji').textContent = win ? '💎' : (od ? '💀' : '👻');
-      document.getElementById('end-title').textContent = win ? 'CURSE BROKEN!' : (od ? 'OVERDOSED' : 'GAME OVER');
-      document.getElementById('end-title').className   = 'end-title ' + (win ? 'end-win' : 'end-lose');
-      document.getElementById('end-body').textContent  = win
-        ? 'You collected 5 gems and shattered Crystal\'s curse! 🎉'
-        : od
-          ? '💉 The crystal meth hit too fast. Overdose kills — in real life there\'s no respawn. If you or someone you know uses, please get help.'
-          : '😴 Crystal\'s mind and body gave out. This is what meth does to people.';
+    saveBest(gs.gems);
+    sfx(gs.phase==='won'?'win':'lose');
+    setTimeout(()=>{
+      const win=gs.phase==='won',od=gs.overdosed;
+      document.getElementById('end-emoji').textContent=win?'💎':(od?'💀':'👻');
+      document.getElementById('end-title').textContent=win?'CURSE BROKEN!':(od?'OVERDOSED':'GAME OVER');
+      document.getElementById('end-title').className='end-title '+(win?'end-win':'end-lose');
+      document.getElementById('end-body').textContent=win
+        ?'You collected 5 gems and shattered Crystal\'s curse! 🎉'
+        :od
+          ?'💉 Crystal meth hit too fast. Overdose kills — in real life there\'s no respawn. If you or someone you know uses, please get help.'
+          :'😴 Crystal\'s mind and body gave out. This is what meth does to people.';
+      document.getElementById('end-score').textContent='Gems collected: '+gs.gems+' | Best: '+getBest();
       show('end');
-    }, 600);
+    },600);
   }
 }
+
+// Init
+updateHomeBest();
 </script>
 </body>
 </html>
