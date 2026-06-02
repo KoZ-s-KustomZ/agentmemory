@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>agentmemory viewer</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <!-- Removed Google Fonts <link> in #323: the viewer CSP is strict
        (default-src 'none', style-src 'unsafe-inline', font-src 'self')
        and external stylesheets from fonts.googleapis.com were blocked,
@@ -103,12 +104,21 @@
       align-items: center;
       justify-content: space-between;
       background: var(--bg);
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 3;
     }
     .app-header .brand {
       display: flex;
       align-items: baseline;
       gap: 10px;
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
     }
+    .app-header .brand:hover h1,
+    .app-header .brand:focus-visible h1 { color: var(--accent); }
+    .app-header .brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     .app-header .brand h1 {
       font-size: 22px;
       color: var(--ink);
@@ -154,9 +164,14 @@
 
     .tab-bar {
       display: flex;
+      height: 48px;
+      flex-shrink: 0;
       border-bottom: 1px solid var(--border-light);
       background: var(--bg);
       overflow-x: auto;
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 2;
     }
     .tab-bar button {
       background: none;
@@ -427,22 +442,46 @@
       margin-bottom: 12px;
       border-left: 3px solid var(--border-light);
       transition: box-shadow 0.15s;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
     }
     .obs-card:hover { box-shadow: 3px 3px 0px 0px var(--border-light); }
     .obs-card.imp-high { border-left-color: var(--accent); }
     .obs-card.imp-med { border-left-color: var(--yellow); }
     .obs-card.imp-low { border-left-color: var(--green); }
     .obs-card .obs-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 12px;
       margin-bottom: 6px;
+    }
+    .obs-card .obs-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .obs-card .obs-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    .obs-card .obs-type-icon {
+      flex: 0 0 auto;
     }
     .obs-card .obs-title {
       font-size: 14px;
       font-weight: 700;
       color: var(--ink);
       font-family: var(--font-display);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .obs-card .obs-time {
       font-size: 10px;
@@ -454,6 +493,14 @@
       font-size: 13px;
       color: var(--ink-muted);
       margin-bottom: 6px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .obs-card pre {
+      max-width: 100%;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .obs-card .obs-facts {
       margin: 6px 0 6px 16px;
@@ -470,6 +517,9 @@
       color: var(--blue);
       font-family: var(--font-mono);
       font-weight: 500;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .tag.file-tag { border-color: var(--green); color: var(--green); }
 
@@ -598,7 +648,14 @@
     .empty-state .empty-link { color: var(--accent); text-decoration: underline; font-size: 13px; font-style: normal; }
 
     /* Feature flag banner system — compact collapsed by default */
-    .flag-banners { padding: 0 0 10px 0; }
+    .flag-banners {
+      padding: 0 12px 10px 12px;
+      background: var(--bg);
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .flag-banners:empty { display: none; }
     button.flag-summary {
       display: flex; align-items: center; gap: 12px;
       padding: 8px 14px; border-radius: 4px;
@@ -609,6 +666,7 @@
       cursor: pointer; user-select: none;
       width: 100%; text-align: left;
       appearance: none;
+      flex: 1 1 auto;
     }
     button.flag-summary:hover,
     button.flag-summary:focus-visible { background: var(--bg-alt); outline: 2px solid var(--border); outline-offset: 1px; }
@@ -623,6 +681,8 @@
     .flag-list {
       display: none; flex-direction: column; gap: 6px;
       margin-top: 6px;
+      max-height: min(30vh, 260px);
+      overflow-y: auto;
     }
     .flag-list.open { display: flex; }
     .flag-banner {
@@ -645,11 +705,53 @@
       font-family: var(--font-mono); font-size: 10px; color: var(--ink);
       white-space: pre-wrap; word-break: break-all;
     }
-    .flag-banner .flag-close {
+    .flag-close {
       background: none; border: none; color: var(--ink-faint); cursor: pointer;
       font-size: 16px; line-height: 1; padding: 0 4px; font-family: inherit;
+      flex: 0 0 auto;
     }
-    .flag-banner .flag-close:hover { color: var(--ink); }
+    .flag-close:hover,
+    .flag-close:focus-visible { color: var(--ink); outline: 2px solid var(--border); outline-offset: 1px; }
+
+    .viewer-auth {
+      display: none;
+      padding: 0 24px 10px 24px;
+      background: var(--bg);
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .viewer-auth.open { display: block; }
+    .viewer-auth-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(180px, 320px) auto;
+      gap: 10px;
+      align-items: center;
+      width: min(960px, 100%);
+      max-width: 960px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      background: var(--bg-subtle);
+      font-family: var(--font-ui);
+      font-size: 12px;
+    }
+    .viewer-auth-title { font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+    .viewer-auth-desc { color: var(--ink-muted); line-height: 1.4; }
+    .viewer-auth-desc code { font-family: var(--font-mono); font-size: 10px; color: var(--ink); }
+    .viewer-auth input {
+      width: 100%;
+      min-width: 0;
+      padding: 7px 9px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    @media (max-width: 900px) {
+      .viewer-auth-panel { grid-template-columns: 1fr; }
+    }
 
     /* Viewer footer */
     .viewer-footer {
@@ -811,7 +913,7 @@
 
     .timeline-container { position: relative; padding: 20px 0; }
     .timeline-container::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--border-light); transform: translateX(-50%); }
-    .timeline-item { position: relative; width: 45%; margin-bottom: 20px; }
+    .timeline-item { position: relative; width: 45%; margin-bottom: 20px; min-width: 0; }
     .timeline-item.tl-left { margin-left: 0; margin-right: auto; text-align: right; padding-right: 30px; }
     .timeline-item.tl-right { margin-left: auto; margin-right: 0; padding-left: 30px; }
     .timeline-dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; top: 16px; z-index: 1; border: 2px solid var(--bg); }
@@ -874,10 +976,10 @@
 </head>
 <body>
   <div class="app-header">
-    <div class="brand">
+    <a class="brand" href="#dashboard" data-tab-link="dashboard" aria-label="Open dashboard">
       <h1>agentmemory</h1>
       <span class="version">v__AGENTMEMORY_VERSION__</span>
-    </div>
+    </a>
     <div class="header-right">
       <span class="dateline" id="dateline"></span>
       <button id="theme-toggle" class="btn" style="font-size:9px;padding:3px 10px;letter-spacing:0.1em;margin-right:8px;" data-action="toggle-theme">DARK</button>
@@ -886,7 +988,7 @@
   </div>
 
   <div class="tab-bar" id="tab-bar">
-    <button class="active" data-tab="dashboard">Dashboard</button>
+    <button class="active" data-tab="dashboard" aria-current="page">Dashboard</button>
     <button data-tab="graph">Graph</button>
     <button data-tab="memories">Memories</button>
     <button data-tab="timeline">Timeline</button>
@@ -901,6 +1003,7 @@
   </div>
 
   <div id="flag-banners" class="flag-banners"></div>
+  <div id="viewer-auth" class="viewer-auth"></div>
 
   <div id="view-dashboard" class="view active"></div>
   <div id="view-graph" class="view"></div>
@@ -1002,6 +1105,8 @@
       task: '&#9745;', other: '&#128196;'
     };
     var CB_STATE_COLORS = { closed: 'badge-green', open: 'badge-red', 'half-open': 'badge-yellow' };
+    var TAB_IDS = ['dashboard', 'graph', 'memories', 'timeline', 'sessions', 'lessons', 'actions', 'crystals', 'audit', 'activity', 'profile', 'replay'];
+    var VIEWER_TOKEN_STORAGE_KEY = 'agentmemory-viewer-token';
 
     var state = {
       activeTab: 'dashboard',
@@ -1018,6 +1123,7 @@
       profile: { loaded: false, projects: [], selectedProject: '', data: null },
       replay: { loaded: false, sessions: [], selectedId: '', timeline: null, cursor: 0, playing: false, speed: 1, timer: null, startAt: 0, offsetAt: 0 },
       flagsConfig: null,
+      flagsDismissed: {},
       ws: null
     };
 
@@ -1039,6 +1145,23 @@
       if (!s) return '';
       return s.length > n ? s.slice(0, n) + '...' : s;
     }
+    function sessionId(s) {
+      return s && s.id !== undefined && s.id !== null ? String(s.id) : '';
+    }
+    function shortSessionId(s, n) {
+      var id = sessionId(s);
+      return id ? id.slice(0, n || 8) : '';
+    }
+    function sessionDisplayName(s) {
+      var project = s && s.project ? String(s.project).split('/').pop() : '';
+      if (project) return project;
+      return shortSessionId(s, 8) || 'Unknown session';
+    }
+    function sessionLabel(s) {
+      var id = shortSessionId(s, 8);
+      var name = sessionDisplayName(s);
+      return id ? name + ' (' + id + ')' : name + ' (missing id)';
+    }
     function debounce(fn, ms) {
       var t;
       return function() {
@@ -1048,16 +1171,86 @@
       };
     }
 
+    // IME_SAFE_SEARCH_V2
+    function bindImeSafeSearch(input, ms, onSearch) {
+      var composing = false;
+      var justCommitted = false;
+      var run = debounce(function(value) { onSearch(value); }, ms);
+      input.addEventListener('compositionstart', function() { composing = true; });
+      input.addEventListener('compositionend', function() {
+        composing = false;
+        justCommitted = true;
+        onSearch(input.value);
+        setTimeout(function() { justCommitted = false; }, 0);
+      });
+      input.addEventListener('input', function(e) {
+        if (composing || e.isComposing) return;
+        if (justCommitted) return;
+        run(input.value);
+      });
+    }
+    function captureSearchFocus(ids) {
+      var a = document.activeElement;
+      if (!a || ids.indexOf(a.id) < 0) return null;
+      return { id: a.id, start: a.selectionStart, end: a.selectionEnd };
+    }
+    function restoreSearchFocus(focus) {
+      if (!focus) return;
+      var el = document.getElementById(focus.id);
+      if (!el) return;
+      el.focus();
+      if (typeof el.setSelectionRange === 'function') {
+        try { el.setSelectionRange(focus.start, focus.end); } catch (e) {}
+      }
+    }
+    function getViewerToken() {
+      try { return sessionStorage.getItem(VIEWER_TOKEN_STORAGE_KEY) || ''; } catch (_) { return ''; }
+    }
+    function setViewerToken(token) {
+      try {
+        if (token) sessionStorage.setItem(VIEWER_TOKEN_STORAGE_KEY, token);
+        else sessionStorage.removeItem(VIEWER_TOKEN_STORAGE_KEY);
+      } catch (_) {}
+    }
+    function showViewerAuthPrompt() {
+      var host = document.getElementById('viewer-auth');
+      if (!host) return;
+      host.classList.add('open');
+      host.innerHTML =
+        '<div class="viewer-auth-panel">' +
+          '<div>' +
+            '<div class="viewer-auth-title">Viewer authorization required</div>' +
+            '<div id="viewer-auth-desc" class="viewer-auth-desc">Enter <code>AGENTMEMORY_SECRET</code> to unlock viewer API access.</div>' +
+          '</div>' +
+          '<input id="viewer-auth-token" type="password" autocomplete="off" spellcheck="false" aria-label="AGENTMEMORY_SECRET" aria-describedby="viewer-auth-desc" placeholder="AGENTMEMORY_SECRET" />' +
+          '<button class="btn" data-action="save-viewer-token">Unlock</button>' +
+        '</div>';
+      var input = document.getElementById('viewer-auth-token');
+      if (input && typeof input.focus === 'function') input.focus();
+    }
+    function hideViewerAuthPrompt() {
+      var host = document.getElementById('viewer-auth');
+      if (!host) return;
+      host.classList.remove('open');
+      host.innerHTML = '';
+    }
+
     async function api(path, opts) {
       try {
         var url = REST + '/agentmemory/' + path;
         var headers = Object.assign({ 'Cache-Control': 'no-cache' }, (opts && opts.headers) || {});
+        var viewerToken = getViewerToken();
+        if (viewerToken && !headers.Authorization && !headers.authorization) {
+          headers.Authorization = 'Bearer ' + viewerToken;
+        }
         var fetchOpts = Object.assign({}, opts || {}, { headers: headers });
         var res = await fetch(url, fetchOpts);
         if (!res.ok) {
+          if (res.status === 401) showViewerAuthPrompt();
           console.warn('[viewer] API ' + (fetchOpts.method || 'GET') + ' ' + path + ' returned ' + res.status);
           return null;
         }
+        hideViewerAuthPrompt();
         return await res.json();
       } catch (err) {
         console.warn('[viewer] API error on ' + path + ':', err);
@@ -1080,17 +1273,52 @@
       });
     }
 
-    function switchTab(tab) {
+    function normalizeTab(tab) {
+      var normalized = String(tab || '').replace(/^#/, '').toLowerCase();
+      return TAB_IDS.indexOf(normalized) >= 0 ? normalized : 'dashboard';
+    }
+
+    function tabFromRoute() {
+      try {
+        return normalizeTab(decodeURIComponent(window.location.hash.slice(1)));
+      } catch (_) {
+        return 'dashboard';
+      }
+    }
+
+    function updateTabRoute(tab, replace) {
+      var target = '#' + tab;
+      if (window.location.hash === target) return;
+      if (replace) {
+        history.replaceState(null, '', target);
+      } else {
+        history.pushState(null, '', target);
+      }
+    }
+
+    function switchTab(tab, opts) {
+      opts = opts || {};
+      tab = normalizeTab(tab);
       if (state.activeTab === 'replay' && tab !== 'replay' && typeof stopReplayTimer === 'function') {
         stopReplayTimer();
       }
+      if (!opts.skipRoute) {
+        updateTabRoute(tab, !!opts.replaceRoute);
+      }
       state.activeTab = tab;
       document.querySelectorAll('.tab-bar button').forEach(function(b) {
-        b.classList.toggle('active', b.dataset.tab === tab);
+        var isActive = b.dataset.tab === tab;
+        b.classList.toggle('active', isActive);
+        if (isActive) {
+          b.setAttribute('aria-current', 'page');
+        } else {
+          b.removeAttribute('aria-current');
+        }
       });
       document.querySelectorAll('.view').forEach(function(v) {
         v.classList.toggle('active', v.id === 'view-' + tab);
       });
+      if (state.flagsConfig) renderFlagBanners(state.flagsConfig);
       loadTab(tab);
     }
 
@@ -1118,7 +1346,7 @@
         var results = await Promise.all([
           apiGet('health'),
           apiGet('sessions'),
-          apiGet('memories?latest=true'),
+          apiGet('memories?latest=true&limit=500'),
           apiGet('graph/stats'),
           apiGet('audit?limit=5'),
           apiGet('semantic'),
@@ -1278,7 +1506,7 @@
         html += '<table><tr><th>Project</th><th>Status</th><th>Obs</th><th>Started</th></tr>';
         recent.forEach(function(s) {
           var statusBadge = s.status === 'active' ? 'badge-green' : s.status === 'completed' ? 'badge-blue' : 'badge-muted';
-          html += '<tr><td style="color:var(--ink);font-weight:500;">' + esc(s.project ? s.project.split('/').pop() : s.id.slice(0,8)) + '</td>';
+          html += '<tr><td style="color:var(--ink);font-weight:500;">' + esc(sessionDisplayName(s)) + '</td>';
           html += '<td><span class="badge ' + statusBadge + '">' + esc(s.status) + '</span></td>';
           html += '<td style="color:var(--ink-muted);font-family:var(--font-mono);font-size:12px;">' + (s.observationCount || 0) + '</td>';
           html += '<td style="font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);">' + esc(shortTime(s.startedAt)) + '</td></tr>';
@@ -1432,7 +1660,13 @@
       }, 30000);
     }
 
-    var graphSim = { nodes: [], edges: [], running: false, canvas: null, ctx: null, raf: null, panX: 0, panY: 0, zoom: 1, dragNode: null, mouseX: 0, mouseY: 0 };
+    var graphSim = { nodes: [], edges: [], running: false, canvas: null, ctx: null, raf: null, panX: 0, panY: 0, zoom: 1, dragNode: null, mouseX: 0, mouseY: 0, tickCount: 0, quietTicks: 0 };
+    function wakeGraphSim() {
+      graphSim.quietTicks = 0;
+      if (graphSim.running && !graphSim.raf) {
+        graphSim.raf = requestAnimationFrame(runSimulation);
+      }
+    }
 
     async function loadGraph() {
       var el = document.getElementById('view-graph');
@@ -1515,6 +1749,7 @@
 
       html += '<button class="btn" style="margin-top:14px;width:100%;font-size:11px;padding:8px;letter-spacing:0.06em;transition:all 0.15s ease;" data-action="rebuild-graph">↻ Rebuild Graph</button>';
       html += '<div id="selected-node-panel"></div>';
+      var __focus = captureSearchFocus(['graph-search']);
       sb.innerHTML = html;
 
       sb.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
@@ -1526,11 +1761,9 @@
 
       var searchInput = document.getElementById('graph-search');
       if (searchInput) {
-        searchInput.addEventListener('input', debounce(function() {
-          graphSearchTerm = this.value.toLowerCase();
-          renderGraph();
-        }, 150));
+        bindImeSafeSearch(searchInput, 200, function(v){ graphSearchTerm = v.toLowerCase(); renderGraph(); });
       }
+      restoreSearchFocus(__focus);
     }
 
     function initGraph() {
@@ -1612,6 +1845,8 @@
         }
         lastMX = e.clientX;
         lastMY = e.clientY;
+        // wake the simulation if it parked itself after settling
+        wakeGraphSim();
       });
       canvas.addEventListener('mousemove', function(e) {
         var dx = e.clientX - lastMX;
@@ -1668,6 +1903,9 @@
         e.preventDefault();
         var factor = e.deltaY > 0 ? 0.9 : 1.1;
         graphSim.zoom = Math.max(0.1, Math.min(5, graphSim.zoom * factor));
+        // zoom is visually meaningless if the rAF loop is parked —
+        // wake the simulation so the next frame redraws at the new scale.
+        wakeGraphSim();
       }, { passive: false });
       canvas.addEventListener('dblclick', function(e) {
         var c = canvasCoords(e);
@@ -1682,6 +1920,7 @@
     window.zoomGraph = function(dir) {
       var factor = dir > 0 ? 1.25 : 0.8;
       graphSim.zoom = Math.max(0.1, Math.min(5, graphSim.zoom * factor));
+      wakeGraphSim();
     };
     window.recenterGraph = function() {
       graphSim.zoom = 1;
@@ -1691,6 +1930,7 @@
         graphSim.panX = cw / 2;
         graphSim.panY = ch / 2;
       }
+      wakeGraphSim();
     };
 
     function selectGraphNode(simNode) {
@@ -1752,10 +1992,19 @@
       var nodes = graphSim.nodes;
       var edges = graphSim.edges;
       var nodeCount = nodes.length;
-      var damping = 0.9;
-      var repulsion = nodeCount > 100 ? 2000 : nodeCount > 50 ? 1200 : 800;
+      graphSim.tickCount = (graphSim.tickCount || 0) + 1;
+      // dense graphs (>1000 nodes) used to oscillate forever
+      // because the per-node force pile-up exceeded what 0.9 damping
+      // could bleed off each tick. Tick-decay tightens damping over
+      // time so the layout actually settles; a per-node velocity cap
+      // prevents any single node from being launched off-screen by an
+      // accumulated kick before damping catches up.
+      var coolBoost = Math.min(0.4, graphSim.tickCount / 1500);
+      var damping = 0.9 - coolBoost;
+      var repulsion = nodeCount > 1000 ? 3000 : nodeCount > 100 ? 2000 : nodeCount > 50 ? 1200 : 800;
       var attraction = nodeCount > 100 ? 0.002 : 0.005;
-      var centerGravity = nodeCount > 100 ? 0.005 : 0.01;
+      var centerGravity = nodeCount > 1000 ? 0.012 : nodeCount > 100 ? 0.005 : 0.01;
+      var velocityCap = nodeCount > 1000 ? 6 : nodeCount > 200 ? 12 : 24;
 
       var nodeMap = {};
       nodes.forEach(function(n) { nodeMap[n.id] = n; });
@@ -1775,8 +2024,14 @@
         }
         fx -= n.x * centerGravity;
         fy -= n.y * centerGravity;
-        n.vx = (n.vx + fx) * damping;
-        n.vy = (n.vy + fy) * damping;
+        var nvx = (n.vx + fx) * damping;
+        var nvy = (n.vy + fy) * damping;
+        // Velocity cap (#563): keep any single node from being launched
+        // off-screen by a one-tick force spike.
+        if (nvx > velocityCap) nvx = velocityCap; else if (nvx < -velocityCap) nvx = -velocityCap;
+        if (nvy > velocityCap) nvy = velocityCap; else if (nvy < -velocityCap) nvy = -velocityCap;
+        n.vx = nvx;
+        n.vy = nvy;
       }
 
       edges.forEach(function(e) {
@@ -1793,13 +2048,28 @@
         if (graphSim.dragNode !== t) { t.vx -= fx; t.vy -= fy; }
       });
 
+      var totalKineticEnergy = 0;
       nodes.forEach(function(n) {
         if (graphSim.dragNode === n) return;
         n.x += n.vx;
         n.y += n.vy;
+        totalKineticEnergy += n.vx * n.vx + n.vy * n.vy;
       });
 
+      // park the simulation when the layout is quiet to save CPU.
+      // Pick up again when a drag/interaction wakes the loop.
+      var rmsVelocity = nodes.length > 0 ? Math.sqrt(totalKineticEnergy / nodes.length) : 0;
+      if (rmsVelocity < 0.05 && graphSim.tickCount > 60 && !graphSim.dragNode) {
+        graphSim.quietTicks = (graphSim.quietTicks || 0) + 1;
+      } else {
+        graphSim.quietTicks = 0;
+      }
+
       renderGraph();
+      if (graphSim.quietTicks > 30) {
+        graphSim.raf = null;
+        return;
+      }
       graphSim.raf = requestAnimationFrame(runSimulation);
     }
 
@@ -2070,8 +2340,19 @@
     async function loadMemories() {
       var el = document.getElementById('view-memories');
       el.innerHTML = '<div class="loading">Loading memories...</div>';
-      var result = await apiGet('memories?latest=true');
-      state.memories.items = (result && result.memories) || [];
+      // cap at 2000 so the viewer remains responsive on large
+      // corpora. Older endpoints returned the full unbounded list which
+      // hit the iii invocation timeout and the UI fell through to 0.
+      var result = await apiGet('memories?latest=true&limit=2000');
+      var items = (result && result.memories) || [];
+      // Newest first — server returns KV-insertion order.
+      items.sort(function(a, b) {
+        var ac = (a && a.createdAt) || (a && a.updatedAt) || '';
+        var bc = (b && b.createdAt) || (b && b.updatedAt) || '';
+        return bc.localeCompare(ac);
+      });
+      state.memories.items = items;
+      state.memories.total = (result && typeof result.total === 'number') ? result.total : items.length;
       state.memories.loaded = true;
       renderMemories();
     }
@@ -2084,7 +2365,26 @@
 
       var filtered = items.filter(function(m) {
         if (typeFilter && m.type !== typeFilter) return false;
-        if (search && !(m.title || '').toLowerCase().includes(search) && !(m.content || '').toLowerCase().includes(search)) return false;
+        const normalizedSearch = (search || '')
+          .normalize("NFKC")
+          .toLowerCase();
+ 
+        const normalizedTitle = (m.title || '')
+          .normalize("NFKC")
+          .toLowerCase();
+
+        const normalizedContent = (m.content || '')
+          .normalize("NFKC")
+          .toLowerCase();
+
+        if (
+          search &&
+          !normalizedTitle.includes(normalizedSearch) &&
+          !normalizedContent.includes(normalizedSearch)
+        ) {
+        return false;
+        }
+
         return true;
       });
 
@@ -2147,14 +2447,12 @@
         html += '</table>';
       }
 
+      var __focus = captureSearchFocus(['mem-search']);
       el.innerHTML = html;
 
       var searchInput = document.getElementById('mem-search');
       if (searchInput) {
-        searchInput.addEventListener('input', debounce(function() {
-          state.memories.search = this.value;
-          renderMemories();
-        }, 200));
+        bindImeSafeSearch(searchInput, 200, function(v){ state.memories.search = v; renderMemories(); });
       }
       var typeSelect = document.getElementById('mem-type-filter');
       if (typeSelect) {
@@ -2163,6 +2461,7 @@
           renderMemories();
         });
       }
+      restoreSearchFocus(__focus);
     }
 
     function deleteMemory(id, title) {
@@ -2192,7 +2491,8 @@
 
       if (sessions.length > 0 && !state.timeline.sessionId) {
         var sorted = sessions.slice().sort(function(a, b) { return (b.startedAt || '').localeCompare(a.startedAt || ''); });
-        state.timeline.sessionId = sorted[0].id;
+        var firstSelectable = sorted.find(function(s) { return sessionId(s); });
+        state.timeline.sessionId = firstSelectable ? sessionId(firstSelectable) : '';
       }
 
       renderTimelineToolbar(sessions);
@@ -2204,8 +2504,9 @@
       var html = '<div class="toolbar">';
       html += '<select id="tl-session"><option value="">Select session</option>';
       sessions.sort(function(a, b) { return (b.startedAt || '').localeCompare(a.startedAt || ''); }).forEach(function(s) {
-        var label = (s.project ? s.project.split('/').pop() : s.id.slice(0,8)) + ' (' + s.id.slice(0,8) + ')';
-        html += '<option value="' + esc(s.id) + '"' + (state.timeline.sessionId === s.id ? ' selected' : '') + '>' + esc(label) + '</option>';
+        var id = sessionId(s);
+        var disabled = id ? '' : ' disabled';
+        html += '<option value="' + esc(id) + '"' + (id && state.timeline.sessionId === id ? ' selected' : '') + disabled + '>' + esc(sessionLabel(s)) + '</option>';
       });
       html += '</select>';
       html += '<select id="tl-importance"><option value="0">All importance</option>';
@@ -2319,12 +2620,12 @@
 
         html += '<div class="obs-card imp-' + impClass + '" style="border-left-color:' + typeColor + ';text-align:left;">';
         html += '<div class="obs-head">';
-        html += '<div style="display:flex;align-items:center;gap:6px;">';
+        html += '<div class="obs-title-row">';
         html += '<span class="obs-type-icon">' + icon + '</span>';
-        html += '<span class="obs-title">' + esc(title) + '</span>';
+        html += '<span class="obs-title" title="' + esc(title) + '">' + esc(title) + '</span>';
         if (isRaw) html += '<span class="badge badge-muted" style="font-size:8px;margin-left:4px;">raw</span>';
         html += '</div>';
-        html += '<div style="display:flex;align-items:center;gap:8px;">';
+        html += '<div class="obs-meta">';
         if (isCompressed) html += '<span class="obs-importance imp-' + impVal + '" title="Importance: ' + impVal + '/10">' + impVal + '</span>';
         html += '<span class="obs-time">' + esc(shortTime(o.timestamp)) + '</span>';
         html += '</div></div>';
@@ -2421,8 +2722,8 @@
       var sorted = sessions.slice().sort(function(a, b) { return (b.startedAt || '').localeCompare(a.startedAt || ''); });
       var recentSessions = sorted.slice(0, 5);
 
-      var obsResults = await Promise.all(recentSessions.map(function(s) {
-        return apiGet('observations?sessionId=' + encodeURIComponent(s.id));
+      var obsResults = await Promise.all(recentSessions.filter(function(s) { return sessionId(s); }).map(function(s) {
+        return apiGet('observations?sessionId=' + encodeURIComponent(sessionId(s)));
       }));
       obsResults.forEach(function(r) {
         if (r && r.observations) allObs = allObs.concat(r.observations);
@@ -2565,15 +2866,16 @@
       } else {
         items.forEach(function(s) {
           var statusBadge = s.status === 'active' ? 'badge-green' : s.status === 'completed' ? 'badge-blue' : 'badge-muted';
-          var selected = state.sessions.selectedId === s.id;
-          html += '<div class="session-item' + (selected ? ' selected' : '') + '" data-action="select-session" data-session-id="' + esc(s.id) + '">';
-          html += '<div class="session-top"><span class="session-project">' + esc(s.project ? s.project.split('/').pop() : 'Unknown') + '</span>';
+          var id = sessionId(s);
+          var selected = id && state.sessions.selectedId === id;
+          html += '<div class="session-item' + (selected ? ' selected' : '') + '"' + (id ? ' data-action="select-session" data-session-id="' + esc(id) + '"' : '') + '>';
+          html += '<div class="session-top"><span class="session-project">' + esc(sessionDisplayName(s)) + '</span>';
           html += '<span class="badge ' + statusBadge + '">' + esc(s.status) + '</span></div>';
           var preview = s.firstPrompt || s.summary || '';
           if (preview) {
             html += '<div class="session-preview" style="font-size:13px;color:var(--ink);margin:4px 0;line-height:1.4;">' + esc(truncate(preview, 140)) + '</div>';
           }
-          html += '<div class="session-meta">' + esc(s.id.slice(0, 12)) + ' &middot; ' + esc(formatTime(s.startedAt));
+          html += '<div class="session-meta">' + esc(shortSessionId(s, 12) || 'missing id') + ' &middot; ' + esc(formatTime(s.startedAt));
           html += ' &middot; ' + (s.observationCount || 0) + ' obs';
           if (s.model) html += ' &middot; ' + esc(s.model);
           html += '</div></div>';
@@ -2594,12 +2896,13 @@
     async function renderSessionDetail() {
       var panel = document.getElementById('session-detail');
       if (!panel) return;
-      var s = state.sessions.items.find(function(x) { return x.id === state.sessions.selectedId; });
-      if (!s) { panel.innerHTML = ''; return; }
+      var s = state.sessions.items.find(function(x) { return sessionId(x) === state.sessions.selectedId; });
+      var id = sessionId(s);
+      if (!s || !id) { panel.innerHTML = ''; return; }
 
       panel.innerHTML = '<div class="detail-panel"><h3>Loading session details…</h3></div>';
 
-      var obsRes = await apiGet('observations?sessionId=' + encodeURIComponent(s.id));
+      var obsRes = await apiGet('observations?sessionId=' + encodeURIComponent(id));
       var obs = (obsRes && obsRes.observations) || [];
 
       var typeCounts = {};
@@ -2672,7 +2975,8 @@
 
       html += '<div class="card" style="margin-bottom:12px;"><div class="card-title">Metadata</div>';
       html += '<div style="font-size:12px;font-family:var(--font-mono);margin-top:8px;line-height:1.7;">';
-      html += '<div><span style="color:var(--ink-muted);">id:</span> ' + esc(s.id) + '</div>';
+      var detailId = sessionId(s);
+      html += '<div><span style="color:var(--ink-muted);">id:</span> ' + esc(detailId || 'missing id') + '</div>';
       html += '<div><span style="color:var(--ink-muted);">cwd:</span> ' + esc(s.cwd || '-') + '</div>';
       html += '<div><span style="color:var(--ink-muted);">started:</span> ' + esc(formatTime(s.startedAt)) + '</div>';
       if (s.endedAt) html += '<div><span style="color:var(--ink-muted);">ended:</span> ' + esc(formatTime(s.endedAt)) + '</div>';
@@ -2681,10 +2985,14 @@
       html += '</div></div>';
 
       html += '<div style="display:flex;gap:8px;">';
-      if (s.status === 'active') {
-        html += '<button class="btn btn-danger" data-action="end-session" data-session-id="' + esc(s.id) + '">End Session</button>';
+      if (detailId && s.status === 'active') {
+        html += '<button class="btn btn-danger" data-action="end-session" data-session-id="' + esc(detailId) + '">End Session</button>';
       }
-      html += '<button class="btn btn-primary" data-action="summarize-session" data-session-id="' + esc(s.id) + '">Summarize</button>';
+      if (detailId) {
+        html += '<button class="btn btn-primary" data-action="summarize-session" data-session-id="' + esc(detailId) + '">Summarize</button>';
+      } else {
+        html += '<button class="btn btn-primary" disabled>Summarize unavailable</button>';
+      }
       html += '</div></div>';
       panel.innerHTML = html;
     }
@@ -2730,7 +3038,7 @@
       html += '</div></div>';
 
       html += '<div style="display:flex;gap:8px;margin-bottom:12px;">';
-      html += '<input class="search-input" type="text" placeholder="Search lessons..." value="' + esc(state.lessons.search) + '" oninput="state.lessons.search=this.value;renderLessons()" style="flex:1" />';
+      html += '<input id="lessons-search" class="search-input" type="text" placeholder="Search lessons..." value="' + esc(state.lessons.search) + '" style="flex:1" />';
       html += '<span style="font-size:12px;color:var(--ink-faint);align-self:center;">' + items.length + ' lessons</span>';
       html += '</div>';
 
@@ -2759,7 +3067,11 @@
         html += '</tbody></table>';
       }
 
+      var __focus = captureSearchFocus(['lessons-search']);
       el.innerHTML = html;
+      var __ls = document.getElementById('lessons-search');
+      if (__ls) bindImeSafeSearch(__ls, 200, function(v){ state.lessons.search = v; renderLessons(); });
+      restoreSearchFocus(__focus);
     }
 
     async function loadActions() {
@@ -2789,8 +3101,8 @@
       }
 
       var html = '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">';
-      html += '<input class="search-input" type="text" placeholder="Search actions..." value="' + esc(state.actions.search) + '" oninput="state.actions.search=this.value;renderActions()" style="flex:1;min-width:200px" />';
-      html += '<select style="padding:4px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--ink);" onchange="state.actions.statusFilter=this.value;renderActions()">';
+      html += '<input id="actions-search" class="search-input" type="text" placeholder="Search actions..." value="' + esc(state.actions.search) + '" style="flex:1;min-width:200px" />';
+      html += '<select id="actions-status-filter" style="padding:4px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--ink);">';
       html += '<option value="">All statuses</option>';
       ['pending','active','done','blocked','cancelled'].forEach(function(s) {
         html += '<option value="' + s + '"' + (statusFilter === s ? ' selected' : '') + '>' + s + '</option>';
@@ -2828,7 +3140,13 @@
         html += '</tbody></table>';
       }
 
+      var __focus = captureSearchFocus(['actions-search']);
       el.innerHTML = html;
+      var __as = document.getElementById('actions-search');
+      if (__as) bindImeSafeSearch(__as, 200, function(v){ state.actions.search = v; renderActions(); });
+      var __af = document.getElementById('actions-status-filter');
+      if (__af) __af.addEventListener('change', function(){ state.actions.statusFilter = this.value; renderActions(); });
+      restoreSearchFocus(__focus);
     }
 
     async function loadCrystals() {
@@ -2876,7 +3194,7 @@
       html += '</div></div>';
 
       html += '<div style="display:flex;gap:8px;margin-bottom:12px;">';
-      html += '<input class="search-input" type="text" placeholder="Search crystals..." value="' + esc(state.crystals.search) + '" oninput="state.crystals.search=this.value;renderCrystals()" style="flex:1" />';
+      html += '<input id="crystals-search" class="search-input" type="text" placeholder="Search crystals..." value="' + esc(state.crystals.search) + '" style="flex:1" />';
       html += '<span style="font-size:12px;color:var(--ink-faint);align-self:center;">' + items.length + ' crystals</span>';
       html += '</div>';
 
@@ -2937,7 +3255,11 @@
         });
       }
 
+      var __focus = captureSearchFocus(['crystals-search']);
       el.innerHTML = html;
+      var __cs = document.getElementById('crystals-search');
+      if (__cs) bindImeSafeSearch(__cs, 200, function(v){ state.crystals.search = v; renderCrystals(); });
+      restoreSearchFocus(__focus);
     }
 
     async function loadAudit() {
@@ -3320,26 +3642,39 @@
     }
 
     document.getElementById('tab-bar').addEventListener('click', function(e) {
-      if (e.target.tagName === 'BUTTON' && e.target.dataset.tab) {
-        switchTab(e.target.dataset.tab);
-      }
+      var btn = e.target instanceof Element ? e.target.closest('button[data-tab]') : null;
+      if (btn) switchTab(btn.dataset.tab);
     });
 
-    // --- Feature flag banners ---------------------------------------------
-    var FLAG_DISMISS_KEY = 'agentmemory.viewer.flags.dismissed.v1';
-    function loadDismissedFlags() {
-      try {
-        var raw = localStorage.getItem(FLAG_DISMISS_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch (_) { return {}; }
+    document.querySelectorAll('[data-tab-link]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        switchTab(link.getAttribute('data-tab-link'));
+      });
+    });
+
+    function syncTabFromRoute() {
+      switchTab(tabFromRoute(), { replaceRoute: true });
     }
-    function saveDismissedFlags(d) {
-      try { localStorage.setItem(FLAG_DISMISS_KEY, JSON.stringify(d)); } catch (_) {}
+    window.addEventListener('hashchange', syncTabFromRoute);
+    window.addEventListener('popstate', syncTabFromRoute);
+
+    // --- Feature flag banners ---------------------------------------------
+    function getDismissedFlags() {
+      if (!state.flagsDismissed) state.flagsDismissed = {};
+      return state.flagsDismissed;
+    }
+    function dismissFlags(keys) {
+      var dismissed = getDismissedFlags();
+      keys.forEach(function(key) {
+        if (key) dismissed[key] = true;
+      });
     }
     function renderFlagBanners(cfg) {
       var host = document.getElementById('flag-banners');
       if (!host) return;
-      var dismissed = loadDismissedFlags();
+      var dismissed = getDismissedFlags();
       var banners = [];
       // Per-flag banner (only for off flags, affecting current tab or dashboard)
       (cfg.flags || []).forEach(function(f) {
@@ -3395,15 +3730,15 @@
         });
       };
       var listHtml = banners.map(function(b) {
-        return '<div class="flag-banner ' + b.kind + '" data-flag="' + b.dismissKey + '">' +
+        return '<div class="flag-banner ' + b.kind + '" data-flag="' + escHtml(b.dismissKey) + '">' +
           '<span class="flag-icon">' + b.icon + '</span>' +
           '<div class="flag-body">' +
-            '<div class="flag-title">' + b.title + ' <code>' + b.keyLabel + '</code></div>' +
+            '<div class="flag-title">' + escHtml(b.title) + ' <code>' + escHtml(b.keyLabel) + '</code></div>' +
             '<div class="flag-desc">' + escHtml(b.desc) + '</div>' +
             '<code class="flag-enable">' + escHtml(b.enable) + '</code>' +
-            (b.docs ? ' <a class="empty-link" href="' + b.docs + '" target="_blank" rel="noopener">Learn more &rarr;</a>' : '') +
+            (b.docs ? ' <a class="empty-link" href="' + escHtml(b.docs) + '" target="_blank" rel="noopener">Learn more &rarr;</a>' : '') +
           '</div>' +
-          '<button class="flag-close" data-dismiss-flag="' + b.dismissKey + '" aria-label="Dismiss">&times;</button>' +
+          '<button type="button" class="flag-close" data-dismiss-flag="' + escHtml(b.dismissKey) + '" aria-label="Dismiss">&times;</button>' +
         '</div>';
       }).join('');
       host.innerHTML = '<button type="button" class="flag-summary" data-action="toggle-flags" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="flag-list">' +
@@ -3446,11 +3781,10 @@
       if (!(e.target instanceof Element)) return;
       var btn = e.target.closest('[data-dismiss-flag]');
       if (btn) {
+        e.preventDefault();
         e.stopPropagation();
         var key = btn.getAttribute('data-dismiss-flag');
-        var d = loadDismissedFlags();
-        d[key] = true;
-        saveDismissedFlags(d);
+        dismissFlags([key]);
         if (state.flagsConfig) renderFlagBanners(state.flagsConfig);
         return;
       }
@@ -3462,12 +3796,6 @@
         if (state.flagsConfig) renderFlagBanners(state.flagsConfig);
       }
     });
-    // Re-render banners when switching tabs so tab-specific banners appear
-    var _origSwitchTab = switchTab;
-    switchTab = function(tab) {
-      _origSwitchTab(tab);
-      if (state.flagsConfig) renderFlagBanners(state.flagsConfig);
-    };
     fetchFlags();
     document.addEventListener('click', function(e) {
       if (!(e.target instanceof Element)) return;
@@ -3515,6 +3843,24 @@
       if (action === 'confirm-delete-memory') {
         var memoryId = target.getAttribute('data-memory-id');
         if (memoryId) confirmDeleteMemory(memoryId);
+        return;
+      }
+      if (action === 'save-viewer-token') {
+        var tokenInput = document.getElementById('viewer-auth-token');
+        var token = tokenInput ? tokenInput.value.trim() : '';
+        if (token) {
+          setViewerToken(token);
+          hideViewerAuthPrompt();
+          // Re-fetch config/flags so the footer version + flag banners
+          // refresh without a full page reload; fetchFlags() only runs
+          // during bootstrap and would otherwise stay stale until the
+          // user reloads.
+          fetchFlags();
+          if (state[state.activeTab] && typeof state[state.activeTab] === 'object') {
+            state[state.activeTab].loaded = false;
+          }
+          loadTab(state.activeTab);
+        }
         return;
       }
       if (action === 'timeline-filter') {
@@ -3587,8 +3933,9 @@
       var el = document.getElementById('view-replay');
       var sessions = state.replay.sessions || [];
       var options = '<option value="">— pick a session —</option>' + sessions.map(function(s) {
-        var label = (s.project || 'unknown') + ' · ' + (s.id || '').slice(0, 8) + ' · ' + (s.observationCount || 0) + ' obs';
-        return '<option value="' + esc(s.id) + '"' + (s.id === state.replay.selectedId ? ' selected' : '') + '>' + esc(label) + '</option>';
+        var id = sessionId(s);
+        var label = sessionDisplayName(s) + ' · ' + (shortSessionId(s, 8) || 'missing id') + ' · ' + (s.observationCount || 0) + ' obs';
+        return '<option value="' + esc(id) + '"' + (id && id === state.replay.selectedId ? ' selected' : '') + (id ? '' : ' disabled') + '>' + esc(label) + '</option>';
       }).join('');
 
       var tl = state.replay.timeline;
@@ -3778,7 +4125,7 @@
       else if (e.key === 'ArrowRight') { e.preventDefault(); stepReplay(1); }
     });
 
-    loadTab('dashboard');
+    switchTab(tabFromRoute(), { replaceRoute: true });
     connectWs();
     startDashboardAutoRefresh();
   </script>

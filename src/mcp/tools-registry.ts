@@ -75,6 +75,14 @@ export const CORE_TOOLS: McpToolDef[] = [
           type: "string",
           description: "Comma-separated relevant file paths",
         },
+        project: {
+          type: "string",
+          description:
+            "Stable canonical project identifier this memory belongs to (e.g. a slug, " +
+            "UUID, or registry key). Must match the value used when the session was " +
+            "started. Do not use filesystem paths or ad-hoc display names — those " +
+            "change across machines and will silently break project scoping.",
+        },
       },
       required: ["content"],
     },
@@ -204,6 +212,31 @@ export const CORE_TOOLS: McpToolDef[] = [
         },
       },
       required: ["memoryId"],
+    },
+  },
+  {
+    name: "memory_commit_lookup",
+    description:
+      "Look up the agent session(s) that produced a specific git commit, given its SHA. Returns the commit metadata and linked sessions.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sha: { type: "string", description: "Full git commit SHA" },
+      },
+      required: ["sha"],
+    },
+  },
+  {
+    name: "memory_commits",
+    description:
+      "List recent commits linked to agent sessions, optionally filtered by branch or repo.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        branch: { type: "string", description: "Filter by branch name" },
+        repo: { type: "string", description: "Filter by remote URL" },
+        limit: { type: "number", description: "Max results (default 100, max 500)" },
+      },
     },
   },
 ];
@@ -916,8 +949,13 @@ export function getAllTools(): McpToolDef[] {
   ];
 }
 
+// default switched from "core" (8 essential tools) to "all"
+// (full 51-tool surface). README and plugin manifests have always
+// advertised 51 tools "in proxy mode"; the old default left OpenCode /
+// Claude Code users seeing 8 with no indication the other 43 existed.
+// Users who want the lean essentials can still set AGENTMEMORY_TOOLS=core.
 export function getVisibleTools(): McpToolDef[] {
-  const mode = process.env["AGENTMEMORY_TOOLS"] || "core";
-  if (mode === "all") return getAllTools();
-  return getAllTools().filter((t) => ESSENTIAL_TOOLS.has(t.name));
+  const mode = process.env["AGENTMEMORY_TOOLS"] || "all";
+  if (mode === "core") return getAllTools().filter((t) => ESSENTIAL_TOOLS.has(t.name));
+  return getAllTools();
 }
