@@ -34,16 +34,17 @@ npm run build
 
 # Start the agentmemory engine in the background (idempotent — skip if
 # already responding on port 3111)
-if curl -sf http://localhost:3111/ -o /dev/null 2>/dev/null; then
+HEALTH="http://localhost:3111/agentmemory/livez"
+if curl -sf "$HEALTH" -o /dev/null 2>/dev/null; then
   echo "[session-start] Engine already running at http://localhost:3111"
 else
   echo "[session-start] Starting agentmemory engine..."
   export PATH="$HOME/.local/bin:$PATH"
-  nohup node "$CLAUDE_PROJECT_DIR/dist/cli.mjs" --no-engine=false \
+  nohup node "$CLAUDE_PROJECT_DIR/dist/cli.mjs" \
     > /tmp/agentmemory.log 2>&1 &
-  # Wait up to 20s for the engine to be ready
-  for i in $(seq 1 40); do
-    if curl -sf http://localhost:3111/ -o /dev/null 2>/dev/null; then
+  # Wait up to 30s for the engine to be ready
+  for i in $(seq 1 60); do
+    if curl -sf "$HEALTH" -o /dev/null 2>/dev/null; then
       echo "[session-start] Engine ready at http://localhost:3111"
       break
     fi
