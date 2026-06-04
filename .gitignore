@@ -8,7 +8,11 @@ dist/
 
 *.log
 .DS_Store
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/hooks
+.claude/hooks/*
+!.claude/hooks/session-start.sh
 
 plugin/scripts/*.map
 plugin/scripts/*.d.mts
