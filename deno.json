@@ -15,5 +15,8 @@
       "dist/",
       "node_modules/"
     ]
+  },
+  "test": {
+    "include": ["deno_test.ts"]
   }
 }
