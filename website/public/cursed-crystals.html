@@ -298,7 +298,10 @@ const SLEEP_LIMIT = 100;
 const PEER_CFG    = { config:{ iceServers:[
   {urls:'stun:stun.l.google.com:19302'},
   {urls:'stun:stun1.l.google.com:19302'},
-  {urls:'stun:stun.relay.metered.ca:80'},
+  // Free TURN relay — needed for mobile carrier NAT traversal
+  {urls:'turn:openrelay.metered.ca:80',   username:'openrelayproject', credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443',  username:'openrelayproject', credential:'openrelayproject'},
+  {urls:'turns:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject'},
 ]}};
 
 var peer=null,conn=null,amHost=false,soloMode=false;
