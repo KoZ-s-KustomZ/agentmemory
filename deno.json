@@ -1,0 +1,22 @@
+{
+  "lint": {
+    "exclude": [
+      "src/",
+      "test/",
+      "plugin/",
+      "eval/",
+      "integrations/",
+      "website/",
+      "examples/",
+      "packages/",
+      "scripts/",
+      "benchmark/",
+      "deploy/",
+      "dist/",
+      "node_modules/"
+    ]
+  },
+  "test": {
+    "exclude": ["**"]
+  }
+}
