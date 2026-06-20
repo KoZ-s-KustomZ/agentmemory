@@ -68,28 +68,32 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 
 /* ── Cell animations ── */
 @keyframes gem-glow{
-  0%,100%{box-shadow:0 0 4px rgba(168,85,247,.3),0 0 8px rgba(6,239,239,.1);}
-  50%    {box-shadow:0 0 18px rgba(168,85,247,.9),0 0 28px rgba(6,239,239,.5);}
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 5px rgba(168,85,247,.3),0 0 10px rgba(6,239,239,.1);}
+  50%    {box-shadow:inset 0 1px 0 rgba(6,239,239,.2),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 20px rgba(168,85,247,.9),0 0 30px rgba(6,239,239,.5);}
 }
-.crystal-cell{animation:gem-glow 1.6s ease-in-out infinite;}
+@keyframes player-pulse{
+  0%,100%{box-shadow:inset 0 1px 0 rgba(215,140,255,.22),0 9px 0 #130424,0 11px 35px rgba(168,85,247,.5),0 0 25px rgba(168,85,247,.15);}
+  50%    {box-shadow:inset 0 1px 0 rgba(215,140,255,.35),0 9px 0 #130424,0 11px 35px rgba(168,85,247,.7),0 0 42px rgba(168,85,247,.38),0 0 60px rgba(6,239,239,.12);}
+}
+.crystal-cell{animation:player-pulse 1.6s ease-in-out infinite;}
 @keyframes gem-sparkle{
   0%,100%{filter:brightness(1);}
   50%    {filter:brightness(1.7) drop-shadow(0 0 6px #06efef);}
 }
-.cell.has-gem{animation:gem-sparkle 1.4s ease-in-out infinite;}
+.cell.has-gem{animation:gem-glow 1.4s ease-in-out infinite,gem-sparkle 1.4s ease-in-out infinite;}
 @keyframes food-pulse{
-  0%,100%{box-shadow:0 0 4px rgba(34,197,94,.3);}
-  50%    {box-shadow:0 0 12px rgba(34,197,94,.7);}
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 4px rgba(34,197,94,.3);}
+  50%    {box-shadow:inset 0 1px 0 rgba(34,197,94,.15),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 14px rgba(34,197,94,.7);}
 }
 .cell.has-food{animation:food-pulse 1.8s ease-in-out infinite;}
 @keyframes drink-pulse{
-  0%,100%{box-shadow:0 0 4px rgba(251,191,36,.3);}
-  50%    {box-shadow:0 0 12px rgba(251,191,36,.7);}
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 4px rgba(251,191,36,.3);}
+  50%    {box-shadow:inset 0 1px 0 rgba(251,191,36,.15),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 14px rgba(251,191,36,.7);}
 }
 .cell.has-drink{animation:drink-pulse 1.6s ease-in-out infinite;}
 @keyframes shield-pulse{
-  0%,100%{box-shadow:0 0 6px rgba(56,189,248,.4);}
-  50%    {box-shadow:0 0 16px rgba(56,189,248,.9);}
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 6px rgba(56,189,248,.4);}
+  50%    {box-shadow:inset 0 1px 0 rgba(56,189,248,.2),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.5),0 0 18px rgba(56,189,248,.9);}
 }
 .cell.has-shield{animation:shield-pulse 1.2s ease-in-out infinite;}
 @keyframes hall-flicker{0%,100%{opacity:.5;}50%{opacity:.22;}}
@@ -155,18 +159,64 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 .sbadge-psycho{color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.2);}
 .sbadge-shield{color:var(--blue);  border-color:var(--blue);  background:rgba(56,189,248,.15);}
 
-/* Grid */
-.grid-wrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:6px;min-height:0;}
-#grid{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(2px,.7vw,4px);
-  width:100%;max-width:min(calc(100vw - 12px),calc(100vh - 300px));aspect-ratio:1;}
-.cell{aspect-ratio:1;background:#0e1018;border:1px solid #1a1d2e;border-radius:6px;
+/* ── 3D Grid Board ── */
+.grid-wrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;
+  padding:8px 6px;min-height:0;overflow:hidden;
+  perspective:680px;perspective-origin:50% -8%;
+  background:radial-gradient(ellipse at 50% 60%,#0c0e20 0%,#050710 100%);}
+
+#board-surface{
+  position:relative;padding:10px;border-radius:10px;
+  background:
+    linear-gradient(rgba(255,255,255,.013) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.013) 1px,transparent 1px),
+    linear-gradient(165deg,#111428 0%,#0a0c1e 50%,#101326 100%);
+  background-size:calc(100%/7 + 2px) calc(100%/7 + 2px),calc(100%/7 + 2px) calc(100%/7 + 2px),100% 100%;
+  transform:rotateX(20deg);transform-origin:50% 80%;
+  transform-style:preserve-3d;
+  box-shadow:
+    inset 0 0 50px rgba(168,85,247,.06),
+    0 0 0 1.5px rgba(168,85,247,.35),
+    0 0 0 3px rgba(6,239,239,.1),
+    0 0 25px rgba(168,85,247,.12),
+    0 30px 60px rgba(0,0,0,.95);}
+
+#board-surface::before{
+  content:'';position:absolute;inset:-4px;border-radius:14px;z-index:-1;
+  background:linear-gradient(135deg,rgba(168,85,247,.55) 0%,rgba(6,239,239,.35) 40%,transparent 60%,rgba(6,239,239,.35) 80%,rgba(168,85,247,.55) 100%);
+  filter:blur(7px);}
+
+#grid{display:grid;grid-template-columns:repeat(7,1fr);
+  gap:clamp(2px,.6vw,4px);
+  width:100%;max-width:min(calc(100vw - 44px),calc(100vh - 340px));aspect-ratio:1;}
+
+.cell{aspect-ratio:1;
+  background:linear-gradient(175deg,#181d34 0%,#0d1020 65%,#0b0d1c 100%);
+  border:1px solid #1c2042;border-top:1px solid #2c3160;border-left:1px solid #24284e;
+  border-radius:4px;
   display:flex;align-items:center;justify-content:center;
   font-size:clamp(.85rem,3.8vw,1.3rem);cursor:default;
-  transition:background .12s,box-shadow .12s;user-select:none;}
-.cell.movable{background:#151825;border-color:rgba(255,255,255,.22);
-  box-shadow:inset 0 0 5px rgba(255,255,255,.07);cursor:pointer;}
-.cell.movable:active{background:#1e2438;}
-.cell.crystal-cell{background:#1e0d33;border:2px solid var(--purple);border-radius:8px;}
+  position:relative;user-select:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 0 #030409,0 3px 8px rgba(0,0,0,.55);
+  transform:translateY(0);
+  transition:transform .1s ease-out,box-shadow .1s ease-out;}
+
+.cell.movable{
+  background:linear-gradient(175deg,#1f2448 0%,#161a36 100%);
+  border-color:rgba(255,255,255,.2);border-top-color:rgba(255,255,255,.32);
+  cursor:pointer;transform:translateY(-3px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 5px 0 #04060e,0 6px 18px rgba(0,0,0,.5),0 0 10px rgba(255,255,255,.04);}
+
+.cell.movable:active{
+  transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 0 #030408,0 3px 10px rgba(0,0,0,.4);}
+
+.cell.crystal-cell{
+  background:linear-gradient(155deg,#2d1052 0%,#1d0838 55%,#150626 100%);
+  border:1.5px solid rgba(168,85,247,.9);
+  border-top-color:#d090f8;border-left-color:#b468f0;
+  border-radius:6px;transform:translateY(-6px);
+  box-shadow:inset 0 1px 0 rgba(215,140,255,.22),0 9px 0 #130424,0 11px 35px rgba(168,85,247,.5),0 0 28px rgba(168,85,247,.18);}
 
 .log-line{width:100%;padding:5px 12px;background:#060709;border-top:1px solid var(--border);
   font-size:.68rem;color:var(--muted);flex-shrink:0;white-space:nowrap;
@@ -255,7 +305,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
     <div id="gems-ct" class="gems-ct">💎 0/5</div>
   </div>
   <div id="status-row" class="status-row"></div>
-  <div class="grid-wrap" id="grid-wrap"><div id="grid"></div></div>
+  <div class="grid-wrap" id="grid-wrap"><div id="board-surface"><div id="grid"></div></div></div>
   <div id="log-line" class="log-line">&gt; Game on.</div>
   <div class="consume-section">
     <div class="consume-hdr">— use shard (costs 1 gem) —</div>
