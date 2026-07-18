@@ -141,8 +141,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 .sbadge-shield{color:var(--blue);  border-color:var(--blue);  background:rgba(56,189,248,.15);}
 
 /* 3D viewport */
-#viewport{flex:1;width:100%;min-height:0;position:relative;overflow:hidden;background:#050710;}
-#viewport canvas.world{display:block;width:100%;height:100%;}
+#viewport{flex:1;width:100%;min-height:0;position:relative;overflow:hidden;background:#050710;
+  touch-action:none;user-select:none;-webkit-user-select:none;}
+#viewport canvas.world{display:block;width:100%;height:100%;touch-action:none;}
 
 /* Virtual joystick */
 #joy-base{position:absolute;width:110px;height:110px;border-radius:50%;display:none;
@@ -236,7 +237,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   <div id="viewport">
     <div id="joy-base"><div id="joy-knob"></div></div>
     <canvas id="minimap" width="110" height="110"></canvas>
-    <div class="ctrl-hint" id="ctrl-hint">drag to walk · walk into items to grab them</div>
+    <div class="ctrl-hint" id="ctrl-hint">tap where you want to go · or drag like a joystick</div>
   </div>
   <div id="log-line" class="log-line">&gt; Crystal woke up cursed in the city…</div>
   <div class="consume-section">
@@ -747,38 +748,69 @@ window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 function setupJoystick(){
   const vp=document.getElementById('viewport');
   const base=document.getElementById('joy-base'),knob=document.getElementById('joy-knob');
-  let cx=0,cy=0;
-  vp.addEventListener('touchstart',e=>{
-    if(joy.active)return;
-    const t=e.changedTouches[0];
-    joy.active=true;joy.id=t.identifier;
+  let cx=0,cy=0,pid=null,startT=0,moved=0;
+  // Pointer Events with capture: reliable in webviews and works with mouse too
+  vp.addEventListener('pointerdown',e=>{
+    if(pid!==null)return;
+    pid=e.pointerId;
+    try{vp.setPointerCapture(pid);}catch(err){}
+    cx=e.clientX;cy=e.clientY;startT=performance.now();moved=0;
     const r=vp.getBoundingClientRect();
-    cx=t.clientX;cy=t.clientY;
     base.style.display='block';
     base.style.left=(cx-r.left-55)+'px';base.style.top=(cy-r.top-55)+'px';
     knob.style.left='31px';knob.style.top='31px';
     document.getElementById('ctrl-hint').style.display='none';
-  },{passive:true});
-  vp.addEventListener('touchmove',e=>{
-    if(!joy.active)return;
-    for(const t of e.changedTouches){
-      if(t.identifier!==joy.id)continue;
-      let dx=t.clientX-cx,dy=t.clientY-cy;
-      const m=Math.hypot(dx,dy),max=44;
-      if(m>max){dx=dx/m*max;dy=dy/m*max;}
-      joy.dx=dx/max;joy.dy=dy/max;
-      knob.style.left=(31+dx)+'px';knob.style.top=(31+dy)+'px';
-    }
-  },{passive:true});
+    e.preventDefault();
+  });
+  vp.addEventListener('pointermove',e=>{
+    if(e.pointerId!==pid)return;
+    let dx=e.clientX-cx,dy=e.clientY-cy;
+    moved=Math.max(moved,Math.hypot(dx,dy));
+    const m=Math.hypot(dx,dy),max=44;
+    if(m>max){dx=dx/m*max;dy=dy/m*max;}
+    joy.dx=dx/max;joy.dy=dy/max;
+    knob.style.left=(31+dx)+'px';knob.style.top=(31+dy)+'px';
+    e.preventDefault();
+  });
   const end=e=>{
-    for(const t of e.changedTouches){
-      if(t.identifier!==joy.id)continue;
-      joy.active=false;joy.dx=0;joy.dy=0;
-      base.style.display='none';
-    }
+    if(e.pointerId!==pid)return;
+    // quick tap with no drag → walk to the tapped spot
+    if(performance.now()-startT<350&&moved<12)tapWalk(e);
+    pid=null;joy.dx=0;joy.dy=0;
+    base.style.display='none';
   };
-  vp.addEventListener('touchend',end,{passive:true});
-  vp.addEventListener('touchcancel',end,{passive:true});
+  vp.addEventListener('pointerup',end);
+  vp.addEventListener('pointercancel',end);
+  window.addEventListener('blur',()=>{keys={};joy.dx=0;joy.dy=0;});
+}
+
+// Tap-to-walk: raycast the tap onto the ground and walk there
+var walkTarget=null,targetMarker=null;
+function tapWalk(e){
+  if(!camera||!scene)return;
+  const vp=document.getElementById('viewport');
+  const r=vp.getBoundingClientRect();
+  const nx=((e.clientX-r.left)/r.width)*2-1;
+  const ny=-((e.clientY-r.top)/r.height)*2+1;
+  const ray=new THREE.Raycaster();
+  ray.setFromCamera({x:nx,y:ny},camera);
+  const hit=new THREE.Vector3();
+  if(ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),hit)){
+    walkTarget={x:Math.max(-WORLD,Math.min(WORLD,hit.x)),
+                z:Math.max(-WORLD,Math.min(WORLD,hit.z))};
+    if(!targetMarker||!targetMarker.parent){
+      targetMarker=new THREE.Mesh(new THREE.RingGeometry(.5,.85,20),
+        new THREE.MeshBasicMaterial({color:0x06efef,transparent:true,opacity:.85,side:THREE.DoubleSide}));
+      targetMarker.rotation.x=-Math.PI/2;targetMarker.position.y=.08;
+      scene.add(targetMarker);
+    }
+    targetMarker.visible=true;
+    targetMarker.position.x=walkTarget.x;targetMarker.position.z=walkTarget.z;
+  }
+}
+function clearWalkTarget(){
+  walkTarget=null;
+  if(targetMarker)targetMarker.visible=false;
 }
 
 function inputVector(){
@@ -935,7 +967,7 @@ function startGame(){
   }
   // rebuild world fresh each run
   buildCity();
-  camYaw=0;walkT=0;
+  camYaw=0;walkT=0;walkTarget=null;targetMarker=null;
   fitViewport();
   setLog('Crystal woke up cursed in the night city 💎 Bank 5 crystals to break the curse!');
   document.getElementById('ctrl-hint').style.display='';
@@ -1010,23 +1042,37 @@ function tick(t){
   gs.biteCd=Math.max(0,gs.biteCd-dt);
   if(gs.sleep>=SLEEP_LIMIT){endGame('lost');return;}
 
-  // ── Movement ──
+  // ── Movement (joystick / keys / tap-to-walk) ──
   const inp=inputVector();
   const speed=9;
+  let mx=0,mz=0,mag=0;
   if(inp.mag>0.05){
-    // move relative to camera yaw
+    // manual input overrides tap-target
+    clearWalkTarget();
     const sin=Math.sin(camYaw),cos=Math.cos(camYaw);
-    let mx=(inp.ix*cos - inp.iz*sin);
-    let mz=(inp.ix*sin + inp.iz*cos);
-    const nx=player.position.x+mx*speed*inp.mag*dt;
-    const nz=player.position.z+mz*speed*inp.mag*dt;
+    mx=(inp.ix*cos - inp.iz*sin);
+    mz=(inp.ix*sin + inp.iz*cos);
+    mag=inp.mag;
+  }else if(walkTarget){
+    const dx=walkTarget.x-player.position.x,dz=walkTarget.z-player.position.z;
+    const d=Math.hypot(dx,dz);
+    if(d<.9)clearWalkTarget();
+    else{mx=dx/d;mz=dz/d;mag=1;}
+  }
+  if(mag>0){
+    const px=player.position.x,pz=player.position.z;
+    const nx=px+mx*speed*mag*dt;
+    const nz=pz+mz*speed*mag*dt;
     if(!collide(nx,player.position.z))player.position.x=Math.max(-WORLD,Math.min(WORLD,nx));
     if(!collide(player.position.x,nz))player.position.z=Math.max(-WORLD,Math.min(WORLD,nz));
+    // auto-walk stuck against a wall → give up on the target
+    if(walkTarget&&Math.abs(player.position.x-px)<.001&&Math.abs(player.position.z-pz)<.001)
+      clearWalkTarget();
     const targetYaw=Math.atan2(mx,mz);
     let dy=targetYaw-player.rotation.y;
     while(dy>Math.PI)dy-=Math.PI*2;while(dy<-Math.PI)dy+=Math.PI*2;
     player.rotation.y+=dy*Math.min(1,dt*12);
-    walkT+=dt*10*inp.mag;
+    walkT+=dt*10*mag;
     // walk cycle
     const sw=Math.sin(walkT)*.55;
     playerParts.legL.rotation.x=sw;playerParts.legR.rotation.x=-sw;
