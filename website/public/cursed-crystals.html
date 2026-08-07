@@ -323,8 +323,9 @@ function sfx(name){
 }
 
 // ─── High score ────────────────────────────────────────────
-function getBest(){return parseInt(localStorage.getItem('cc_best_gems')||'0');}
-function saveBest(g){if(g>getBest())localStorage.setItem('cc_best_gems',String(g));}
+// localStorage can throw in sandboxed iframes / private mode — never let it break the game
+function getBest(){try{return parseInt(localStorage.getItem('cc_best_gems')||'0')||0;}catch(e){return 0;}}
+function saveBest(g){try{if(g>getBest())localStorage.setItem('cc_best_gems',String(g));}catch(e){}}
 function updateHomeBest(){
   const b=getBest();
   document.getElementById('home-best').textContent=b>0?'🏆 Best: '+b+' crystals collected':'';
@@ -378,6 +379,7 @@ var crystals=[],items=[],dogs=[],halls=[],buildings=[],lampGlows=[],traffic=[],p
 var joy={active:false,dx:0,dy:0,id:null};
 var keys={};
 var camYaw=0,walkT=0,lastT=0,animId=0;
+var _fwd=null,_right=null; // scratch vectors for camera-relative movement
 
 function emojiSprite(emoji,size){
   const c=document.createElement('canvas');c.width=c.height=128;
@@ -1190,6 +1192,10 @@ function startGame(){
   // rebuild world fresh each run
   buildCity();
   camYaw=0;walkT=0;walkTarget=null;targetMarker=null;
+  if(!_fwd){_fwd=new THREE.Vector3();_right=new THREE.Vector3();}
+  // seat the camera behind the player before frame 1 so input is oriented correctly
+  camera.position.set(player.position.x,6,player.position.z-11);
+  camera.lookAt(player.position.x,2.2,player.position.z);
   fitViewport();
   setLog('Crystal woke up cursed in the night city 💎 Bank 5 crystals to break the curse!');
   document.getElementById('ctrl-hint').style.display='';
@@ -1271,9 +1277,12 @@ function tick(t){
   if(inp.mag>0.05){
     // manual input overrides tap-target
     clearWalkTarget();
-    const sin=Math.sin(camYaw),cos=Math.cos(camYaw);
-    mx=(inp.ix*cos - inp.iz*sin);
-    mz=(inp.ix*sin + inp.iz*cos);
+    // derive from the camera's own basis so "up" is always away from the camera
+    camera.getWorldDirection(_fwd);_fwd.y=0;_fwd.normalize();
+    _right.crossVectors(_fwd,camera.up).normalize();
+    mx=_right.x*inp.ix - _fwd.x*inp.iz;
+    mz=_right.z*inp.ix - _fwd.z*inp.iz;
+    const ml=Math.hypot(mx,mz)||1;mx/=ml;mz/=ml;
     mag=inp.mag;
   }else if(walkTarget){
     const dx=walkTarget.x-player.position.x,dz=walkTarget.z-player.position.z;
